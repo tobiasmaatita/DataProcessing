@@ -1,0 +1,5 @@
+What is a so called “branch” in Git terms and why would you use it?
+> A branch is a moveable pointer to one of your commits. The master branch points to the latest commit, 
+  > and one can create other branches to point to other commits. One could use branches to easily turn
+  > back to older versions of their work, or to create diverging history. Also, branches facilitate
+  > merging two diverged commits.
