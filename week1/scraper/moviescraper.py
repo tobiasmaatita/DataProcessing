@@ -89,7 +89,7 @@ def save_csv(outfile, movies):
     """
 
     writer = csv.writer(outfile)
-    writer.writerow(['sep=,'])
+    # writer.writerow(['sep=,'])
     writer.writerow(['Title', 'Rating', 'Year', 'Actors', 'Runtime'])
 
     # write lines

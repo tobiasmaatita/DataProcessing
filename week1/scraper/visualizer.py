@@ -21,14 +21,8 @@ counter = {str(key): 0 for key in range(START_YEAR, END_YEAR)}
 def visualize(input_file):
     with open(input_file) as movies:
 
-        # read file, manually entering fieldnames as the first line is sep=,
-        #   and not those fieldnames
-        movies_dict = csv.DictReader(movies, fieldnames = ['Title', 'Rating',
-                                     'Year', 'Acotrs', 'Runtime'])
-
-        # skip over sep=, and headers
-        for i in range(2):
-            next(movies_dict)
+        # read input file
+        movies_dict = csv.DictReader(movies)
 
         # get year of release
         for row in movies_dict:
@@ -54,10 +48,11 @@ def visualize(input_file):
 
         # plot mean rating against year of release
         plt.plot(year_release, mean_rating)
-        plt.axis([START_YEAR, END_YEAR - 1, min(mean_rating) - 0.1,
-                 max(mean_rating) + 0.1])
+        plt.axis([START_YEAR, END_YEAR - 1, 0, 10])
         plt.xticks(range(START_YEAR, END_YEAR))
-        plt.title('Mean IMDB rating of top-50 films per year between 2007 and 2018')
+        plt.yticks(range(11))
+        plt.suptitle('Mean IMDB rating of top-50 films', fontsize = 15)
+        plt.title('per year between 2007 and 2018', loc = 'center')
         plt.xlabel('Year of release')
         plt.ylabel('Mean IMDB rating')
 
