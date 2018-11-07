@@ -50,7 +50,7 @@ def visualize(input_file):
         plt.plot(year_release, mean_rating)
         plt.axis([START_YEAR, END_YEAR - 1, 0, 10])
         plt.xticks(range(START_YEAR, END_YEAR))
-        plt.yticks(range(11))
+        plt.yticks(range(len(year_release)+1))
         plt.suptitle('Mean IMDB rating of top-50 films', fontsize = 15)
         plt.title('per year between 2007 and 2018', loc = 'center')
         plt.xlabel('Year of release')
