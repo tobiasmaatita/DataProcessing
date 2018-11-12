@@ -3,6 +3,7 @@
 # Student number: 1073019
 import pandas as pd
 import csv
+import json
 import statistics as stat
 import matplotlib.pyplot as plt
 import numpy as np
@@ -69,11 +70,14 @@ def parse(input):
 
     return df
 
-
-def main():
-
-    # obtain dataframe
-    df = parse(INPUT_FILE)
+def gdp_central_tendency(df):
+    """
+    Calculate central tendency of the GDP per capita per country.
+    Isolates the GDP column from a dataframe and returns a histogram of the
+    distribution of GDP.
+    Also prints the maximum, minimum, mean, mode, median and standard deviation
+    of the dataset
+    """
 
     # extract series GDP
     gdp_data = df['GDP ($ per capita) dollars']
@@ -88,46 +92,55 @@ def main():
     plt.hist(gdp_list, rwidth = 0.8)
     plt.xlabel("GDP ($ per capita)")
     plt.ylabel("Frequency")
-    plt.suptitle("Frequency of GDP worldwide")
-
-    plt.show()
+    plt.title("Worldwide distribution of GDP per capita", fontsize = 14)
 
     max_gdp = max(gdp_list)
     min_gdp = min(gdp_list)
-    print(f"Maximum value: {max_gdp}\nMinimum value: {min_gdp}")
+    mean_gdp = round(np.mean(gdp_list), 2)
+    median_gdp = np.median(gdp_list)
+    mode_gdp = stat.mode(gdp_list)
+    stdd_gdp = round(np.std(gdp_list), 2)
+    print("\nGDP INFO\n")
+    print(f"- Maximum value: {max_gdp}\n- Minimum value: {min_gdp}\n- Mean: {mean_gdp}\n"
+          f"- Median: {median_gdp}\n- Mode: {mode_gdp}\n- Std. dev: {stdd_gdp}\n")
+
+    return plt.show()
+
+def five_number_infants(df):
+    # get infant mortality data, clean NaN and make a list of float values
+    infants = df['Infant mortality (per 1000 births)']
+    infants = infants.dropna(axis=0, how="any")
+    infant_list = [float(infant.replace(',','.')) for infant in infants.tolist()]
+
+    # make boxplot
+    bp = plt.boxplot(infant_list, patch_artist = True)
+
+    # color boxplot
+    for box in bp['boxes']:
+        # change outline color
+        box.set(color='#153C66', linewidth=2)
+        # change fill color
+        box.set(facecolor = '#3E99B9')
+    for median in bp['medians']:
+        median.set(color='#000000', linewidth=2)
+    for flier in bp['fliers']:
+        flier.set(marker='o', color='#e7298a', alpha=0.5)
+
+    plt.title("Worldwide infant mortality per 1000 births", fontsize = 14)
+
+    return plt.show()
 
 
+def main():
 
+    # obtain dataframe
+    df = parse(INPUT_FILE)
 
+    # get gdp data and histogram
+    gdp_central_tendency(df)
 
-
-    # # GDP Data: mean, mode and median
-    # # gdps = df['GDP ($ per capita) dollars'].tolist()
-    # gdps = df['GDP ($ per capita) dollars']
-    # df.query('GDP ($ per capita) dollars != None')
-    # mean = gdps.mean()
-    # print(f"MEAN: {mean}")
-    # count = 0
-    # clean_gdps = [int(gdp) for gdp in gdps if gdp]
-    # # gdp_mean = stat.mean(clean_gdps)
-    # # gdp_mean = clean_gdps.mean()
-    # gdp_mode = stat.mode(clean_gdps)
-    # gdp_median = stat.median(clean_gdps)
-    # gdp_stdev = stat.stdev(clean_gdps)
-    # print(f"mean: {gdp_mean}\nmode: {gdp_mode}\nmedian: {gdp_median}\nstd.dev: {gdp_stdev}")
-    # print(df['GDP ($ per capita) dollars'].tolist())
-    # # histogram maken?\
-    # print(len(clean_gdps))
-
-    # infoant mortality
-    # infants = df[df.'Infant mortality (per 1000 births)' != 'unknown']
-    # clean_infants = [float(infant.replace(',','.')) for infant in infants if not infant == 'unknown']
-    # print(len(infants))
-
-    # boxplot = df.boxplot(column=['Infant mortality (per 1000 births)'])
-
-
-
+    # five number summary of infant mortality rates
+    five_number_infants(df)
 
 
 if __name__ == "__main__":
