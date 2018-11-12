@@ -68,7 +68,7 @@ def parse(input):
         # dataframe
         df = pd.DataFrame.from_dict(countries_info)
 
-    return df
+    return df, countries_info
 
 def gdp_central_tendency(df):
     """
@@ -104,7 +104,7 @@ def gdp_central_tendency(df):
     print(f"- Maximum value: {max_gdp}\n- Minimum value: {min_gdp}\n- Mean: {mean_gdp}\n"
           f"- Median: {median_gdp}\n- Mode: {mode_gdp}\n- Std. dev: {stdd_gdp}\n")
 
-    return plt.show()
+    return plt.show(), mode_gdp
 
 def five_number_infants(df):
     # get infant mortality data, clean NaN and make a list of float values
@@ -131,18 +131,52 @@ def five_number_infants(df):
     return plt.show()
 
 
-def main():
+def write_to_json(countries_info):
+    with open('countries.json', 'w') as f:
+        countries_dict = {}
+        # iterate over countries, getting each name
+        for index, country in enumerate(countries_info['Country']):
+            
+            # every name is a key holding a own dictionary
+            countries_dict[country] = {}
+
+            # fill dictionary behind name with its info
+            for key in WANTED_INFO:
+                # NaN is a float, json takes 'NULL' rather than 'NaN'
+                if key is not 'Country' and not isinstance(countries_info[key][index], float):
+
+                    # as per the example in the assignment, commas need to be
+                    #  replaced by dots
+                    if ',' in countries_info[key][index]:
+                        countries_info[key][index] = countries_info[key][index].replace(',','.')
+
+                    # insert dictionary behind country key
+                    countries_dict[country][key] = countries_info[key][index]
+
+                # replace NaN with 'NULL'
+                elif isinstance(countries_info[key][index], float):
+                    countries_dict[country][key] = 'NULL'
+
+        # write to json file
+        f.write(json.dumps(countries_dict))
+
+        return True
+
+
+def main(input):
 
     # obtain dataframe
-    df = parse(INPUT_FILE)
+    df, countries_info = parse(input)
 
     # get gdp data and histogram
-    gdp_central_tendency(df)
+    gdp_info = gdp_central_tendency(df)
 
     # five number summary of infant mortality rates
     five_number_infants(df)
 
+    # write to json
+    write_to_json(countries_info)
+
 
 if __name__ == "__main__":
-    # parse(INPUT_FILE)
-    main()
+    main(INPUT_FILE)
