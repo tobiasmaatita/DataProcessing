@@ -70,6 +70,7 @@ def parse(input):
 
     return df, countries_info
 
+
 def gdp_central_tendency(df):
     """
     Calculate central tendency of the GDP per capita per country.
@@ -86,31 +87,52 @@ def gdp_central_tendency(df):
     gdp_data = gdp_data.dropna(axis=0, how="any")
     gdp_list = [int(gdp) for gdp in gdp_data.tolist() if int(gdp) <= 100000]
 
+    gdp_info = {}
+    gdp_info['max_gdp'] = max(gdp_list)
+    gdp_info['min_gdp'] = min(gdp_list)
+    gdp_info['mean_gdp'] = round(np.mean(gdp_list), 2)
+    gdp_info['median_gdp'] = np.median(gdp_list)
+    gdp_info['mode_gdp'] = stat.mode(gdp_list)
+    gdp_info['stdd_gdp'] = round(np.std(gdp_list), 2)
+
     # inspect max, min for possible outliers in histogram
     #  turns out there were outliers, data is now cleaned while making gdp_list,
     #  see justification.txt
-    plt.hist(gdp_list, rwidth = 0.8)
+    plt.hist(gdp_list, bins = 15, rwidth = 0.8)
     plt.xlabel("GDP ($ per capita)")
+    plt.xticks(np.arange(0, gdp_info['max_gdp'], step=10000))
     plt.ylabel("Frequency")
     plt.title("Worldwide distribution of GDP per capita", fontsize = 14)
 
-    max_gdp = max(gdp_list)
-    min_gdp = min(gdp_list)
-    mean_gdp = round(np.mean(gdp_list), 2)
-    median_gdp = np.median(gdp_list)
-    mode_gdp = stat.mode(gdp_list)
-    stdd_gdp = round(np.std(gdp_list), 2)
     print("\nGDP INFO\n")
-    print(f"- Maximum value: {max_gdp}\n- Minimum value: {min_gdp}\n- Mean: {mean_gdp}\n"
-          f"- Median: {median_gdp}\n- Mode: {mode_gdp}\n- Std. dev: {stdd_gdp}\n")
+    print(f"- Maximum value: {gdp_info['max_gdp']}\n- Minimum value: {gdp_info['min_gdp']}\n"
+          f"- Mean: {gdp_info['mean_gdp']}\n"
+          f"- Median: {gdp_info['median_gdp']}\n- Mode: {gdp_info['mode_gdp']}\n"
+          f"- Std. dev: {gdp_info['stdd_gdp']}\n")
 
-    return plt.show(), mode_gdp
+
+    return gdp_info, plt.show()
+
 
 def five_number_infants(df):
     # get infant mortality data, clean NaN and make a list of float values
     infants = df['Infant mortality (per 1000 births)']
     infants = infants.dropna(axis=0, how="any")
     infant_list = [float(infant.replace(',','.')) for infant in infants.tolist()]
+
+    # load five numbers summary into a dict
+    infants_info = {}
+    infants_info['Minimum'] = min(infant_list)
+    infants_info['Maximum'] = max(infant_list)
+    quartiles = np.percentile(infant_list, [25, 50, 75])
+    infants_info['Q1'] = quartiles[0]
+    infants_info['Median'] = quartiles[1]
+    infants_info['Q3'] = quartiles[2]
+
+    print("\nINFANT MORTALITY FIVE NUMBER SUMMARY\n")
+    print(f"- Minimum: {infants_info['Minimum']}\n- Q1: {infants_info['Q1']}\n"
+          f"- Median: {infants_info['Median']}\n- Q3: {infants_info['Q3']}\n"
+          f"- Maximum: {infants_info['Maximum']}\n")
 
     # make boxplot
     bp = plt.boxplot(infant_list, patch_artist = True)
@@ -136,7 +158,7 @@ def write_to_json(countries_info):
         countries_dict = {}
         # iterate over countries, getting each name
         for index, country in enumerate(countries_info['Country']):
-            
+
             # every name is a key holding a own dictionary
             countries_dict[country] = {}
 
@@ -168,7 +190,7 @@ def main(input):
     # obtain dataframe
     df, countries_info = parse(input)
 
-    # get gdp data and histogram
+    # get dict with gdp data and histogram
     gdp_info = gdp_central_tendency(df)
 
     # five number summary of infant mortality rates
