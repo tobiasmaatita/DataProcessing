@@ -105,7 +105,7 @@ def gdp_central_tendency(df):
 
     # inspect max, min for possible outliers in histogram
     #  turns out there were outliers, data is now cleaned while making gdp_list,
-    #  see justification.txt
+    #  see function description.
     plt.hist(gdp_list, bins = 15, rwidth = 0.8)
     plt.xlabel("GDP ($ per capita)")
     plt.xticks(np.arange(0, gdp_info['max_gdp'], step=10000))
