@@ -14,6 +14,11 @@ WANTED_INFO = ['Country', 'Region', 'Pop. Density (per sq. mi.)',
                'GDP ($ per capita) dollars']
 
 def parse(input):
+    """
+    Parse and preprocess input csv file.
+    Returns a dataframe and a dictionary with the parsed info.
+    """
+
     with open(input) as countries:
 
         # read input file
@@ -77,7 +82,10 @@ def gdp_central_tendency(df):
     Isolates the GDP column from a dataframe and returns a histogram of the
     distribution of GDP.
     Also prints the maximum, minimum, mean, mode, median and standard deviation
-    of the dataset
+    of the dataset.
+    There was one outlier; Suriname's gdp is 400000 dollars per capita, which is
+    abnormally high. I decided to remove this value from the list. The next highest
+    value was Luxembourg's 55100 dollars per capita. However, this is not too high.
     """
 
     # extract series GDP
@@ -110,11 +118,16 @@ def gdp_central_tendency(df):
           f"- Median: {gdp_info['median_gdp']}\n- Mode: {gdp_info['mode_gdp']}\n"
           f"- Std. dev: {gdp_info['stdd_gdp']}\n")
 
-
     return gdp_info, plt.show()
 
 
 def five_number_infants(df):
+    """
+    Calculates a five number summary of the information on worldwide infant
+    mortality rates. Returns a dictionary with this information, along with a
+    boxplot, visualizing the information.
+    """
+
     # get infant mortality data, clean NaN and make a list of float values
     infants = df['Infant mortality (per 1000 births)']
     infants = infants.dropna(axis=0, how="any")
@@ -146,14 +159,20 @@ def five_number_infants(df):
     for median in bp['medians']:
         median.set(color='#000000', linewidth=2)
     for flier in bp['fliers']:
-        flier.set(marker='o', color='#e7298a', alpha=0.5)
+        flier.set(marker='o', markerfacecolor='#3E99B9', alpha=0.5)
 
-    plt.title("Worldwide infant mortality per 1000 births", fontsize = 14)
+    plt.suptitle("Worldwide infant mortality per 1000 births", fontsize = 14)
+    plt.title("Five Number Summary")
+    plt.ylabel("Infant mortality per 1000 births")
 
     return plt.show()
 
 
 def write_to_json(countries_info):
+    """
+    Write dictionary to json file.
+    """
+
     with open('countries.json', 'w') as f:
         countries_dict = {}
         # iterate over countries, getting each name
@@ -182,72 +201,67 @@ def write_to_json(countries_info):
         # write to json file
         f.write(json.dumps(countries_dict))
 
-        return True
+    return True
+
 
 def scatter(df):
+    """
+    Scatterplot of a country's gdp plotted against its infant mortality rate per
+    1000 births.
+    """
 
     # infant data
     infants = df['Infant mortality (per 1000 births)']
-    # infants = infants.dropna(axis=0, how="any")
-    # infant_list = [float(infant.replace(',','.')) for infant in infants.tolist() if not isinstance(infant, float)]
-    # infant_list = infants.tolist()
-    # print(type(infant_list))
-    # print(len(infant_list))
-    print(len(infants))
     infant_list = []
+
+    # possibly incorrect data, as it is unclear to me how NaN values are processed
     for infant in infants:
         if isinstance(infant, float):
-            print('NaN')
             infant_list.append('NaN')
         else:
             infant_list.append(float(infant.replace(',','.')))
-
-    # infant_list = infants.tolist()
 
     # gdp data
     gdp_data = df['GDP ($ per capita) dollars']
     gdp_list = []
     for gdp in gdp_data:
         if isinstance(infant, float):
-            print('NaN')
             gdp_list.append('NaN')
         elif float(gdp) > 100000:
             gdp_list.append(float(50000))
         else:
             gdp_list.append(float(gdp))
-    # drop NaN and convert to list of ints, whilst cutting outliers
-    # gdp_data = gdp_data.dropna(axis=0, how="any")
-    # gdp_list = [float(gdp) for gdp in gdp_data.tolist() if float(gdp) <= 100000]
-    # print(len(gdp_list))
-    # print(type(gdp_list))
-    # gdp_list = gdp_data.tolist()
-
 
     plt.scatter(gdp_list, infant_list, cmap = 'viridis')
+    plt.title("Each country's infant mortality plotted against GDP")
+    plt.xlabel("GDP per capita ($)")
+    plt.ylabel("Infant mortality per 1000 births")
     plt.show()
-
-
-
 
     return True
 
+
 def main(input):
+    """
+    Main function.
+    """
 
     # obtain dataframe
     df, countries_info = parse(input)
-    #
-    # # get dict with gdp data and histogram
-    # gdp_info = gdp_central_tendency(df)
-    #
-    # five number summary of infant mortality rates
-    # five_number_infants(df)
-    #
-    # # write to json
-    # write_to_json(countries_info)
 
-    # return True
-    # scatterplot
+    # get dict with gdp data and histogram
+    gdp_info = gdp_central_tendency(df)
+
+    # five number summary of infant mortality rates
+    five_number_infants(df)
+
+    # write to json
+    write_to_json(countries_info)
+
+    # scatterplot (optional)
     scatter(df)
+
+    return True
 
 
 if __name__ == "__main__":
