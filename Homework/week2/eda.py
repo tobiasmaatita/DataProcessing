@@ -184,20 +184,70 @@ def write_to_json(countries_info):
 
         return True
 
+def scatter(df):
+
+    # infant data
+    infants = df['Infant mortality (per 1000 births)']
+    # infants = infants.dropna(axis=0, how="any")
+    # infant_list = [float(infant.replace(',','.')) for infant in infants.tolist() if not isinstance(infant, float)]
+    # infant_list = infants.tolist()
+    # print(type(infant_list))
+    # print(len(infant_list))
+    print(len(infants))
+    infant_list = []
+    for infant in infants:
+        if isinstance(infant, float):
+            print('NaN')
+            infant_list.append('NaN')
+        else:
+            infant_list.append(float(infant.replace(',','.')))
+
+    # infant_list = infants.tolist()
+
+    # gdp data
+    gdp_data = df['GDP ($ per capita) dollars']
+    gdp_list = []
+    for gdp in gdp_data:
+        if isinstance(infant, float):
+            print('NaN')
+            gdp_list.append('NaN')
+        elif float(gdp) > 100000:
+            gdp_list.append(float(50000))
+        else:
+            gdp_list.append(float(gdp))
+    # drop NaN and convert to list of ints, whilst cutting outliers
+    # gdp_data = gdp_data.dropna(axis=0, how="any")
+    # gdp_list = [float(gdp) for gdp in gdp_data.tolist() if float(gdp) <= 100000]
+    # print(len(gdp_list))
+    # print(type(gdp_list))
+    # gdp_list = gdp_data.tolist()
+
+
+    plt.scatter(gdp_list, infant_list, cmap = 'viridis')
+    plt.show()
+
+
+
+
+    return True
 
 def main(input):
 
     # obtain dataframe
     df, countries_info = parse(input)
-
-    # get dict with gdp data and histogram
-    gdp_info = gdp_central_tendency(df)
-
+    #
+    # # get dict with gdp data and histogram
+    # gdp_info = gdp_central_tendency(df)
+    #
     # five number summary of infant mortality rates
-    five_number_infants(df)
+    # five_number_infants(df)
+    #
+    # # write to json
+    # write_to_json(countries_info)
 
-    # write to json
-    write_to_json(countries_info)
+    # return True
+    # scatterplot
+    scatter(df)
 
 
 if __name__ == "__main__":
