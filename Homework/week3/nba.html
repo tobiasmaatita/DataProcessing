@@ -1,0 +1,194 @@
+<!-- Name: Tobias Maätita
+Student No.: 10730109
+File purpose: xxxxxxx -->
+
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>NBA finals data 1980-2017</title>
+  </head>
+
+  <body>
+    <h1 align = 'center'>Mean points scored by champions and runners up in NBA Finals, 1980-2017</h1>
+    <canvas id="graph", width = 1300, height = 700>
+    </canvas>
+    <script>
+      var fileName = "temp.json";
+      var txtFile = new XMLHttpRequest();
+      txtFile.onreadystatechange = function() {
+        if (txtFile.readyState === 4 && txtFile.status == 200) {
+          var nbaObject = JSON.parse(txtFile.responseText);
+          var years = Object.keys(nbaObject);
+
+          // get champions and runners up data for line graph
+          var data = {values:[]};
+          var data2 = {values: []};
+
+          for (var i = 0; i < years.length; i++)
+          {
+            // we will plot mean number of points scored (PTS) against the year
+            // champions' data
+            yearData = {};
+            yearData.x = years[i];
+            yearData.y = nbaObject[years[i]]['Champions']['PTS'];
+            data['values'].push(yearData);
+
+            // runners up
+            yearData2 = {};
+            yearData2.x = years[i];
+            yearData2.y = nbaObject[years[i]]['Runner up']['PTS'];
+            data2['values'].push(yearData2)
+          }
+          highestY = (maxY(data));
+          highestY2 = (maxY(data2));
+
+          // initiate canvas
+          var c = document.getElementById("graph");
+          var ctx = c.getContext("2d");
+
+          // padding
+          var xPadding = 75;
+          var yPadding = 75;
+
+          // transformation function for x and y coördinates
+          let createScreenY = createTransform([highestY + 1, 0],[0, c.height - yPadding]);
+          let createScreenX = createTransform([0, 38], [0, c.width - xPadding]);
+
+          // x and y axes
+          ctx.lineWidth = 2;
+          ctx.strokeStyle = '#000';
+          ctx.font = 'italic 8pt sans-serif';
+          ctx.textAlign = "center";
+
+          ctx.beginPath();
+          ctx.moveTo(xPadding, 0);
+          ctx.lineTo(xPadding, c.height - yPadding);
+          ctx.lineTo(createScreenX(37), c.height - yPadding);
+          ctx.stroke();
+
+          // x axis ticks
+          for (var i = 0; i < data.values.length; i ++)
+          {
+              xVal = data.values[i].x;
+              ctx.fillText(xVal, createScreenX(i) + xPadding, c.height - yPadding + 20)
+          }
+
+          ctx.textAlign = "right"
+          ctx.textBaseline = "middle";
+          ctx.strokeStyle = '#000';
+
+          // y axis ticks
+          for (var i = 0; i <= highestY; i += 10)
+          {
+              ctx.fillText(i, xPadding - 10, createScreenY(i));
+
+              // horizontal lines
+              if (i >= 1)
+                ctx.lineWidth = 0.5
+                ctx.beginPath()
+                ctx.moveTo(xPadding, createScreenY(i));
+                ctx.lineTo(createScreenX(37) + xPadding, createScreenY(i));
+                ctx.stroke();
+          }
+
+          // first datapoint champions
+          ctx.lineWidth = 1.5
+          ctx.strokeStyle = '#f00'
+
+          ctx.beginPath();
+          ctx.moveTo(createScreenX(0) + xPadding, createScreenY(data.values[0].y));
+
+          // draw line graph, starting from first datapoint
+          for (var i = 1; i < data.values.length; i ++)
+          {
+              yVal = data.values[i].y;
+              ctx.lineTo(createScreenX(i) + xPadding, createScreenY(yVal));
+          }
+          ctx.stroke();
+
+          // // dots
+          // for(var i = 0; i < data.values.length; i ++)
+          // {
+          //     ctx.beginPath();
+          //     ctx.arc(createScreenX(i) + xPadding, createScreenY(data.values[i].y),
+          //             4, 0, Math.PI * 2);
+          //     ctx.fill();
+          // }
+
+          // first datapoint runners up
+          ctx.lineWidth = 1.5
+          ctx.strokeStyle = '#00f'
+
+          ctx.beginPath();
+          ctx.moveTo(createScreenX(0) + xPadding, createScreenY(data2.values[0].y));
+
+          // draw line graph, starting from first datapoint
+          for (var i = 1; i < data2.values.length; i++)
+          {
+            yVal = data2.values[i].y;
+            ctx.lineTo(createScreenX(i) + xPadding, createScreenY(yVal));
+          }
+          ctx.stroke()
+
+          ctx.font = '18px Helvetica';
+          ctx.textAlign = 'left';
+          ctx.strokeStyle = '#f00';
+          ctx.strokeText('--', xPadding + 15, c.height - yPadding - 35)
+          ctx.fillText('Champions', xPadding + 30, c.height - yPadding - 35)
+          ctx.strokeStyle = '#00f';
+          ctx.strokeText('--', xPadding + 15, c.height - yPadding - 15)
+          ctx.fillText('Runners up', xPadding + 30, c.height - yPadding - 15)
+
+          ctx.font = '24px Sans Serif'
+          ctx.textAlign = 'middle'
+          ctx.fillText('Year', c.width/2, c.height - 20)
+
+          // doesn't work
+          ctx.rotate(Math.PI*1)
+          ctx.fillText('Mean number of points scored', 0,0)
+        }
+      }
+      txtFile.open("GET", fileName);
+      txtFile.send();
+
+
+      function maxY(set)
+      {
+        // initiat max on 0
+        var max = 0;
+        for (var i = 0; i < set.values.length; i++)
+        {
+          // set max to highest y value
+          if (set.values[i].y > max)
+          {
+            max = set.values[i].y;
+            console.log(max)
+          }
+        }
+        // round to next 10 based value
+        max += 10 - (max % 10);
+
+        return max
+      }
+
+      function createTransform(domain, range)
+      {
+        var domain_min = domain[0]
+        var domain_max = domain[1]
+        var range_min = range[0]
+        var range_max = range[1]
+
+        // formulas to calculate the alpha and the beta
+       	var alpha = (range_max - range_min) / (domain_max - domain_min)
+        var beta = range_max - alpha * domain_max
+
+        // returns the function for the linear transformation (y= a * x + b)
+        return function(x){
+          return alpha * x + beta;
+        }
+      }
+    </script>
+
+  </body>
+</html>
