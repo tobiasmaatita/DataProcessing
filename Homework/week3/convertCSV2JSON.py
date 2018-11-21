@@ -11,7 +11,7 @@ import numpy as np
 # input file retreived from https://www.kaggle.com/daverosenman/nba-finals-team-stats/version/5,
 #  courtesy of user DaveRosenman
 #  if needed, enter another filename here
-INPUT_FILE = "NBA_finals.csv"
+INPUT_FILE = "data/NBA_finals.csv"
 
 # the info wanted from the dataset
 #  in this case, I chose to only use year, team name, status, total points,
@@ -63,7 +63,7 @@ def to_json(data_dict):
     Write the json file.
     """
 
-    with open('temp.json', 'w') as f:
+    with open('data/temp.json', 'w') as f:
 
         # select on which key to arrange JSON file: in this case I used the year.
         head = 'Year'
