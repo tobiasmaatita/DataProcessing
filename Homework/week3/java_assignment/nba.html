@@ -1,0 +1,303 @@
+<!-- Name: Tobias Maätita
+Student No.: 10730109
+File purpose: xxxxxxx -->
+
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+
+    <!-- meta tags -->
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="../static/styles.css" rel="stylesheet"/>
+
+    <title>NBA Finals data 1980-2017</title>
+  </head>
+
+  <body>
+    <!-- navigation bar -->
+    <div class="topnav">
+      <a class="active" href="/">Week3</a>
+      <a href="https://www.kaggle.com/daverosenman/nba-finals-team-stats/version/5" target="_blank">Data source</a>
+      <a id = "index" href="../java_assignment/index.html">Home</a>
+      <a id = "points" href="../java_assignment/points.html">Points</a>
+      <a id = "threes" href="../java_assignment/threes.html">Threes</a>
+      <a id = "both" href="../java_assignment/both.html">Both</a>
+      <a href="https://tobiasmaatita.github.io/DataProcessing/" target="_blank">Tobias Maätita GitPages</a>
+    </div>
+
+    <!-- body -->
+    <div class="container-fluid">
+
+      <h1>Mean points scored and percentages of scored threepointers by champions and runners up in NBA Finals, 1980-2017</h1>
+
+      <!-- initiate canvas -->
+      <canvas align = 'center', id="graph", width = 1300, height = 650>
+      </canvas>
+
+      <script>
+        var fileName = "../temp.json";
+        var txtFile = new XMLHttpRequest();
+        txtFile.onreadystatechange = function() {
+          if (txtFile.readyState === 4 && txtFile.status == 200) {
+            var nbaObject = JSON.parse(txtFile.responseText);
+            var years = Object.keys(nbaObject);
+
+            // get champions and runners up data for line graph
+            var data = {values:[]};
+            var data2 = {values: []};
+            var data3 = {values: []};
+            var data4 = {values: []}
+
+            for (var i = 0; i < years.length; i++)
+            {
+              // we will plot mean number of points scored (PTS) against the year
+              // champions' data
+              yearData = {};
+              yearData.x = years[i];
+              yearData.y = nbaObject[years[i]]['Champions']['PTS'];
+              data['values'].push(yearData);
+
+              // runners up
+              yearData2 = {};
+              yearData2.x = years[i];
+              yearData2.y = nbaObject[years[i]]['Runner up']['PTS'];
+              data2['values'].push(yearData2);
+
+              // TPP champs
+              yearData3 = {};
+              yearData3.x = years[i];
+              yearData3.y = nbaObject[years[i]]['Champions']['TPP'];
+              data3['values'].push(yearData3);
+
+              // TPP runners up
+              yearData4 = {};
+              yearData4.x = years[i];
+              yearData4.y = nbaObject[years[i]]['Runner up']['TPP'];
+              data4['values'].push(yearData4);
+            }
+            highestY = maxY(data);
+            highestY2 = maxY(data2);
+            highestY3 = maxY(data3);
+            highestY4 = maxY(data4);
+
+            // initiate canvas
+            var c = document.getElementById("graph");
+            var ctx = c.getContext("2d");
+
+            // padding
+            var xPadding = 75;
+            var yPadding = 75;
+
+            // transformation function for x and y coördinates
+            let createScreenY = createTransform([highestY + 1, 0],[0, c.height - yPadding], false);
+            let createScreenX = createTransform([0, 38], [0, c.width - 2*xPadding], true);
+
+            // x and y axes
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = '#000';
+            ctx.font = 'italic 8pt sans-serif';
+            ctx.textAlign = "center";
+
+            ctx.beginPath();
+            ctx.moveTo(xPadding, 0);
+            ctx.lineTo(xPadding, c.height - yPadding);
+            ctx.lineTo(createScreenX(37), c.height - yPadding);
+
+            // Threepointers percentage line axis
+            ctx.lineTo(createScreenX(37), createScreenY(100))
+            ctx.stroke();
+
+            // x axis ticks
+            for (var i = 0; i < data.values.length; i ++)
+            {
+                xVal = data.values[i].x;
+                ctx.textBaseline = "top"
+                ctx.lineWidth = 0.5
+                ctx.fillText(xVal, createScreenX(i), createScreenY(0) + 10)
+                ctx.beginPath()
+
+                ctx.moveTo(createScreenX(i), createScreenY(0))
+                ctx.lineTo(createScreenX(i), createScreenY(0) + 5)
+                ctx.stroke()
+            }
+
+            ctx.textAlign = "right"
+            ctx.textBaseline = "middle";
+            ctx.strokeStyle = '#000';
+
+            // y axis ticks
+            for (var i = 0; i <= highestY; i += 10)
+            {
+                ctx.fillText(i, createScreenX(0) - 10, createScreenY(i));
+
+                // horizontal lines
+                if (i >= 1)
+                  ctx.lineWidth = 0.5
+                  ctx.beginPath()
+                  ctx.moveTo(createScreenX(0) - 5, createScreenY(i));
+                  ctx.lineTo(createScreenX(37) + 5, createScreenY(i));
+                  ctx.stroke();
+            }
+
+            // percentage axis ticks
+            for (var i = 0; i <= 100; i += 10)
+            {
+                ctx.textAlign = 'left'
+                ctx.fillText(i, createScreenX(37) + 10, createScreenY(i));
+            }
+
+            // first datapoint champions
+            ctx.lineWidth = 1.5;
+            ctx.strokeStyle = '#f00';
+
+            ctx.beginPath();
+            ctx.moveTo(createScreenX(0), createScreenY(data.values[0].y));
+
+            // draw line graph, starting from first datapoint
+            for (var i = 1; i < data.values.length; i ++)
+            {
+                yVal = data.values[i].y;
+                ctx.lineTo(createScreenX(i), createScreenY(yVal));
+
+            }
+            ctx.stroke();
+
+            // first datapoint runners up
+            ctx.strokeStyle = '#00f'
+
+            ctx.beginPath();
+            ctx.moveTo(createScreenX(0), createScreenY(data2.values[0].y));
+
+            // draw line graph, starting from first datapoint
+            for (var i = 1; i < data2.values.length; i++)
+            {
+              yVal = data2.values[i].y;
+              ctx.lineTo(createScreenX(i), createScreenY(yVal));
+
+            }
+            ctx.stroke();
+
+            // first TPP champions
+            ctx.lineWidth = 2
+            ctx.strokeStyle = '#f00';
+            ctx.setLineDash([8, 15]);
+
+            ctx.beginPath();
+            ctx.moveTo(createScreenX(0), createScreenY(data3.values[0].y));
+
+            for (var i = 1; i < data3.values.length; i++)
+            {
+              yVal = data3.values[i].y;
+              ctx.lineTo(createScreenX(i), createScreenY(yVal));
+
+            }
+            ctx.stroke()
+
+            // first TPP runners up
+            ctx.strokeStyle = '#00f';
+
+            ctx.beginPath();
+            ctx.moveTo(createScreenX(0), createScreenY(data4.values[0].y));
+
+            for (var i = 1; i < data4.values.length; i++)
+            {
+              yVal = data4.values[i].y;
+              ctx.lineTo(createScreenX(i), createScreenY(yVal));
+
+            }
+            ctx.stroke()
+
+
+            // graph legend
+            ctx.font = '18px Helvetica';
+            ctx.textAlign = 'right';
+            ctx.setLineDash([]);
+
+            // legend strokes
+            ctx.strokeStyle = '#f00';
+            ctx.strokeText('---', createScreenX(36) - 95 ,createScreenY(7));
+            ctx.strokeStyle = '#00f';
+            ctx.strokeText('---', createScreenX(36) - 95, createScreenY(3));
+            // legend text
+            ctx.textAlign = 'left'
+            ctx.fillText('Champions', createScreenX(33), createScreenY(7));
+            ctx.fillText('Runners up', createScreenX(33), createScreenY(3));
+
+            // graph labels
+            ctx.font = '20px Arial';
+            ctx.textAlign = 'middle';
+            ctx.fillText('Year', c.width/2, c.height - 20);
+            ctx.save()
+            ctx.textAlign = 'center';
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillText('Mean points scored',-createScreenY(65), 10);
+            ctx.restore()
+
+            ctx.save()
+            ctx.textAlign = 'center';
+            ctx.rotate(Math.PI / 2);
+            ctx.fillText('Percentage of threepointers scored', createScreenY(50),-createScreenX(37) - xPadding + 10)
+            ctx.restore()
+
+          }
+        }
+        txtFile.open("GET", fileName);
+        txtFile.send();
+
+
+        function maxY(set)
+        // Find the maximum value in the values of the entered dataset
+        {
+          // initiat max on 0
+          var max = 0;
+          for (var i = 0; i < set.values.length; i++)
+          {
+            // set max to highest y value
+            if (set.values[i].y > max)
+            {
+              max = set.values[i].y;
+              console.log(max)
+            }
+          }
+          // round to next 10 based value
+          max += 10 - (max % 10);
+
+          return max
+        }
+
+
+        function createTransform(domain, range , x)
+        // Transform data to x and y coördinate to project on screen.
+        //  Accounts for added padding at the x axis when calculating an
+        //  x coördinate.
+        {
+          var domain_min = domain[0]
+          var domain_max = domain[1]
+          var range_min = range[0]
+          var range_max = range[1]
+
+          // formulas to calculate the alpha and the beta
+          var alpha = (range_max - range_min) / (domain_max - domain_min)
+          var beta = range_max - alpha * domain_max
+          var xPadding = 75;
+
+          // returns the function for the linear transformation (y= a * x + b)
+          // for x coordinates also include the x padding
+          if (x === true)
+          {
+            return function(x){
+              return alpha * x + beta + xPadding;
+            }
+          }
+            return function(x){
+              return alpha * x + beta
+            }
+        }
+      </script>
+    </div>
+  </body>
+</html>
