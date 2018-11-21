@@ -44,9 +44,9 @@ def preprocess(data_dict):
     """
 
     # for int:
-    # int_keys = ['Year']
-    # for key in int_keys:
-    #     data_dict[key] = [int(value) for value in data_dict[key]]
+    int_keys = ['Year']
+    for key in int_keys:
+        data_dict[key] = [int(value) for value in data_dict[key]]
 
     # for float:
     float_keys = ['PTS', 'FGP', 'TPP']
