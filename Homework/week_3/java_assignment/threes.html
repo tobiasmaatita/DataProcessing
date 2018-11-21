@@ -73,13 +73,33 @@ File purpose: Scored threepointers per finals by champions and runners up -->
             var c = document.getElementById("graph");
             var ctx = c.getContext("2d");
 
-            // padding
+            // padding and other global variables such as the distance between
+            //  the axis and the text in the ticks and the size of the ticks
             var xPadding = 75;
             var yPadding = 75;
+            var xyTickPadding = 10;
+            var tickSize = 5;
+
+            // buffer at axis to prevent the final value from falling off the canvas
+            //  using this buffer, the highest value will be plotted a bit off the
+            //  edge of the canvas
+            var axisBuffer = 1;
+
+            // calculate years range
+            // the outcome of yearDiff will also be used as the end of the axis
+            var firstYear = 1980;
+            var lastYear = 2017;
+            var yearDiff = lastYear - firstYear;
+
+            // get rid of magical number 100
+            var totPercentage = 100;
 
             // transformation function for x and y coördinates
-            let createScreenY = createTransform([103, 0],[0, c.height - yPadding], false);
-            let createScreenX = createTransform([0, 38], [0, c.width - 2*xPadding], true);
+            let createScreenY = createTransform([totPercentage + 3*axisBuffer, 0],
+                                                [0, c.height - yPadding], false);
+
+            let createScreenX = createTransform([0, yearDiff + axisBuffer],
+                                                [0, c.width - 2*xPadding], true);
 
             // x and y axes
             ctx.lineWidth = 2;
@@ -90,7 +110,7 @@ File purpose: Scored threepointers per finals by champions and runners up -->
             ctx.beginPath();
             ctx.moveTo(xPadding, 0);
             ctx.lineTo(xPadding, c.height - yPadding);
-            ctx.lineTo(createScreenX(37), c.height - yPadding);
+            ctx.lineTo(createScreenX(yearDiff), c.height - yPadding);
             ctx.stroke()
 
             // x axis ticks
@@ -99,11 +119,11 @@ File purpose: Scored threepointers per finals by champions and runners up -->
                 xVal = data3.values[i].x;
                 ctx.textBaseline = "top"
                 ctx.lineWidth = 0.5
-                ctx.fillText(xVal, createScreenX(i), createScreenY(0) + 10)
+                ctx.fillText(xVal, createScreenX(i), createScreenY(0) + xyTickPadding)
                 ctx.beginPath()
 
                 ctx.moveTo(createScreenX(i), createScreenY(0))
-                ctx.lineTo(createScreenX(i), createScreenY(0) + 5)
+                ctx.lineTo(createScreenX(i), createScreenY(0) + tickSize)
                 ctx.stroke()
             }
 
@@ -112,16 +132,16 @@ File purpose: Scored threepointers per finals by champions and runners up -->
             ctx.strokeStyle = '#000';
 
             // y axis ticks
-            for (var i = 0; i <= 100; i += 10)
+            for (var i = 0; i <= totPercentage; i += 10)
             {
-                ctx.fillText(i, createScreenX(0) - 10, createScreenY(i));
+                ctx.fillText(i, createScreenX(0) - xyTickPadding, createScreenY(i));
 
                 // horizontal lines
                 if (i >= 1)
                   ctx.lineWidth = 0.5
                   ctx.beginPath()
-                  ctx.moveTo(createScreenX(0) - 5, createScreenY(i));
-                  ctx.lineTo(createScreenX(37), createScreenY(i));
+                  ctx.moveTo(createScreenX(0) - tickSize, createScreenY(i));
+                  ctx.lineTo(createScreenX(yearDiff), createScreenY(i));
                   ctx.stroke();
             }
 
@@ -160,10 +180,13 @@ File purpose: Scored threepointers per finals by champions and runners up -->
             ctx.textAlign = 'right';
 
             // legend strokes
+            //  the coordinates for the text and lines in the legend are
+            //  chosen manually to fit neatly in the graph
             ctx.strokeStyle = '#f00';
             ctx.strokeText('---', createScreenX(36) - 95 ,createScreenY(7));
             ctx.strokeStyle = '#00f';
             ctx.strokeText('---', createScreenX(36) - 95, createScreenY(3));
+
             // legend text
             ctx.textAlign = 'left'
             ctx.fillText('Champions', createScreenX(33), createScreenY(7));
@@ -172,11 +195,12 @@ File purpose: Scored threepointers per finals by champions and runners up -->
             // graph labels
             ctx.font = '20px Arial';
             ctx.textAlign = 'middle';
-            ctx.fillText('Year', c.width/2, c.height - 20);
+            ctx.fillText('Year', c.width/2, c.height - 2*xyTickPadding);
             ctx.save()
             ctx.textAlign = 'center';
             ctx.rotate(-Math.PI / 2);
-            ctx.fillText('Percentage of threepointers scored',-createScreenY(50), 10);
+            ctx.fillText('Percentage of threepointers scored',
+                         -createScreenY(totPercentage/2), xyTickPadding);
             ctx.restore()
 
 
