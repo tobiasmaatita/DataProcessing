@@ -5,11 +5,16 @@ html, body
     background: lightgrey;
 }
 
-/* p
+h1
 {
-  color:black;
-  font-family: arial;
-} */
+  font-size: 40px;
+  font-weight: bold;
+}
+
+p
+{
+  text-align: justify;
+}
 
 .xAxis, .yAxis
 {
@@ -36,10 +41,71 @@ html, body
   fill: black;
 }
 
+/* columns */
+.column
+{
+  float: left;
+  width: 50%;
+  padding: 20px;
+}
 
-/* everything below is from site */
-.xAxis path, .yAxis line,
-.yAxis path, .xAxis line
+/* ensure content is below navbar */
+div.container-fluid
+{
+  padding-top: 20px;
+  overflow: scroll;
+  height: 100%;
+}
+
+.label
+{
+  text-anchor: middle;
+  fill: black;
+  font-size: 18px;
+}
+
+/* Clear floats after the columns */
+.row:after
+{
+  content: "";
+  display: table;
+  clear: both;
+}
+
+.title
+{
+  font-size: 22px;
+  fill: black;
+}
+
+/* navbar */
+.topnav
+{
+  background-color: #333;
+  overflow: hidden;
+}
+
+/* navbar elements */
+.topnav a
+{
+  float: left;
+  color: #f2f2f2;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  font-size: 17px;
+}
+
+/* color change navbar */
+.topnav a:hover
+{
+    background-color: #3E99E9;
+    color: black;
+}
+
+/* axes */
+.xAxis path, .xAxis line,
+.yAxis path, .yAxis line
 {
   fill: none;
   stroke: #000;
@@ -51,18 +117,29 @@ html, body
   display: none;
 }
 
+
+
+/* everything below is from http://bl.ocks.org/Caged/6476579*/
+
+/* tips */
+
+/* color change in bar */
 .bar:hover
 {
-  fill: orangered;
+  fill: red;
 }
 
+/* create tip */
 .d3-tip {
   line-height: 1;
-  font-weight: bold;
+
+  font-weight: normal;
   padding: 12px;
-  background: rgba(0, 0, 0, 0.8);
-  color: #fff;
-  border-radius: 2px;
+  background: white;
+  color: black;
+  border-radius: 10px;
+  text-align: center;
+  word-wrap: break-word;
 }
 
 /* Creates a small triangle extender for the tooltip */
@@ -72,7 +149,7 @@ html, body
   font-size: 10px;
   width: 100%;
   line-height: 1;
-  color: rgba(0, 0, 0, 0.8);
+  color: white;
   content: "\25BC";
   position: absolute;
   text-align: center;
@@ -83,36 +160,4 @@ html, body
   margin: -1px 0 0 0;
   top: 100%;
   left: 0;
-}
-
-
-/* ensure content is below navbar */
-/* div.container-fluid
-{ */
-    /* padding-top: 20px;
-    overflow: scroll;
-    height: 100%;
-}
-
-
-.topnav
-{
-  background-color: #333;
-  overflow: hidden;
-}
-
-.topnav a
-{
-  float: left;
-  color: #f2f2f2;
-  text-align: center;
-  padding: 14px 16px;
-  text-decoration: none;
-  font-size: 17px;
-}
-
-.topnav a:hover
-{
-    background-color: #3E99E9;
-    color: black;
 }
