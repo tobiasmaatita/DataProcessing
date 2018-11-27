@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang='en' dir='ltr'>
+  <head>
+    <meta charset='utf-8'>
+    <script type='text/javascript' src='d3/d3.js'></script>
+    <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+
+    <!-- Bootstrap CSS -->
+    <link href='https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css' rel='stylesheet'/>
+    <link href='static/styles.css' rel='stylesheet'/>
+
+  </head>
+  <body>
+
+    <script type='text/javascript'>
+      d3.select('head').append('title').text('Tobias Bar Chart');
+      var body = d3.select('body');
+
+      body.append('p').text('Bar Chart');
+      body.append('p').text('Tobias Maätita (10730109)');
+      body.append('p').text('This is a bar graph of some data.');
+
+      // load json file
+      d3.json('data/nba.json').then(function(dataset){
+
+        // some global variables and initialising arrays
+        var years = new Array();
+
+        var championsTimes = new Array();
+        var championsYears = new Array();
+        var allChampsTimes = new Array();
+        var allChampsTeams = new Array();
+
+        var runnerTimes = new Array();
+        var runnerYears = new Array();
+        var allRunnerTimes = new Array();
+        var allRunnerTeams = new Array();
+
+        var teams = (Object.keys(dataset))
+
+        for (var i = 0; i < teams.length; i++) {
+          championsTimes.push(dataset[teams[i]]['Champion']['Times'])
+          runnerTimes.push(dataset[teams[i]]['Runner up']['Times'])
+        }
+
+        for (var i = 0; i < teams.length; i++) {
+          if (championsTimes[i] > 0) {
+            championsYears.push(dataset[teams[i]]['Champion']['Years']);
+            allChampsTimes.push(championsTimes[i]);
+            allChampsTeams.push(teams[i]);
+          }
+          if (runnerTimes[i] > 0) {
+            runnerYears.push(dataset[teams[i]]['Runner up']['Years']);
+            allRunnerTimes.push(runnerTimes[i]);
+            allRunnerTeams.push(teams[i]);
+          }
+        }
+        var maxValueChamp = d3.max(allChampsTimes);
+        var maxValueRunner = d3.max(allRunnerTimes);
+
+        // create svg
+        var barWidth = 40;
+        var barPadding = 7;
+
+        var leftBuffer = 100;
+        var rightBuffer = 100;
+        var topBuffer = 50;
+
+        var xAxisBuffer = 100;
+        var xTextBuffer = 45;
+        var yTextBuffer = 15;
+
+        var svgHeight = 500;
+        var svgWidth = allChampsTeams.length * barWidth + leftBuffer + rightBuffer;
+
+        var svg = d3.select('body').append('svg')
+                  .attr('class', 'champions')
+                  .attr('height', svgHeight)
+                  .attr('width', svgWidth)
+                  .attr('fill', 'teal')
+                  .attr('stroke', 'black');
+
+        var bars = svg.selectAll('rect').data(allChampsTimes)
+                   .enter().append('rect');
+
+        // scales and axes
+        var yScale = d3.scaleLinear()
+                     .domain([0, maxValueChamp])
+                     .range([svgHeight- xAxisBuffer, 0 + topBuffer]);
+
+        var xScale = d3.scaleLinear()
+                     .domain([0, allChampsTeams.length - 1])
+                     .range([leftBuffer, svgWidth - barWidth - rightBuffer]);
+
+        var xTickScale = d3.scaleLinear()
+                        .domain([0, allChampsTeams.length - 1])
+                        .range([leftBuffer + 4 + barWidth/2, svgWidth - barWidth/2 - rightBuffer + 4]);
+
+        var xAxis = d3.axisBottom()
+                    .scale(xTickScale)
+                    .ticks(allChampsTeams.length - 1)
+                    .tickFormat(function(d){
+                      return allChampsTeams[d];
+                    });
+
+        var yAxis = d3.axisLeft()
+                    .scale(yScale);
+
+        var tip = d3.tip()
+          .attr('class', 'd3-tip')
+          // .offset([-10, 0])
+          .html(function(d) {
+            return "<strong>Frequency:</strong> <span style='color:red'>" + "hallo" + "</span>";
+          })
+
+        bars.attr('class', 'bar')
+             .attr('x', function(d, i){
+              return xScale(i) + (barPadding);
+             })
+             .attr('y', function(d, i){
+               return yScale(allChampsTimes[i]);
+             })
+             .attr('width', function(d){
+               return barWidth - (barPadding);
+             })
+             .attr('height', function(d, i){
+               return svgHeight - yScale(allChampsTimes[i]) - xAxisBuffer;
+             });
+
+        svg.append('g')
+             .attr('class', 'xAxis')
+             .attr('transform', 'translate(0,' + (svgHeight - xAxisBuffer) + ')')
+             .call(xAxis)
+                .selectAll('text')
+                .style('text-anchor', 'end')
+                .attr('dx', '-.8em')
+                .attr('dy', '.15em')
+                .attr('transform', 'rotate(-65)');
+
+        svg.append('g')
+             .attr('class', 'yAxis')
+             .attr('transform', 'translate(' + leftBuffer + ',0)')
+             .call(yAxis);
+
+        svg.append('text')
+             .text('Team')
+             .style('text-anchor', 'middle')
+             .attr('class', 'label')
+             .attr('x', (svgWidth + leftBuffer - rightBuffer) / 2)
+             .attr('y', svgHeight - yTextBuffer);
+
+        svg.append('text')
+             .text('Championships')
+             .style('text-anchor', 'middle')
+             .attr('class', 'label')
+             .attr('x', -yScale(maxValueChamp/2))
+             .attr('y', xTextBuffer)
+             .attr('transform', 'rotate(-90)');
+
+      });
+
+    </script>
+  </body>
+</html>
