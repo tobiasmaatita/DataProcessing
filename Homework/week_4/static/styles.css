@@ -82,7 +82,7 @@ div.container-fluid
 .topnav
 {
   background-color: #333;
-  overflow: hidden;
+  overflow: scroll;
 }
 
 /* navbar elements */

@@ -70,7 +70,7 @@
 
               for (var i = 0; i < teams.length; i++) {
                 championsTimes.push(dataset[teams[i]]['Champion']['Times'])
-                runnerTimes.push(dataset[teams[i]]['Runner up']['Times'])
+                // runnerTimes.push(dataset[teams[i]]['Runner up']['Times'])
               }
 
               for (var i = 0; i < teams.length; i++) {
@@ -79,14 +79,14 @@
                   allChampsTimes.push(championsTimes[i]);
                   allChampsTeams.push(teams[i]);
                 }
-                if (runnerTimes[i] > 0) {
-                  runnerYears.push(dataset[teams[i]]['Runner up']['Years']);
-                  allRunnerTimes.push(runnerTimes[i]);
-                  allRunnerTeams.push(teams[i]);
-                }
+                // if (runnerTimes[i] > 0) {
+                //   runnerYears.push(dataset[teams[i]]['Runner up']['Years']);
+                //   allRunnerTimes.push(runnerTimes[i]);
+                //   allRunnerTeams.push(teams[i]);
+                // }
               }
               var maxValueChamp = d3.max(allChampsTimes);
-              var maxValueRunner = d3.max(allRunnerTimes);
+              // var maxValueRunner = d3.max(allRunnerTimes);
 
               // create svg
               var barWidth = 40;
