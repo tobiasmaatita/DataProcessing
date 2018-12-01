@@ -1,0 +1,106 @@
+html, body
+{
+    height: 100%;
+    overflow: scroll;
+    background: lightgrey;
+}
+
+h1
+{
+  font-size: 40px;
+  font-weight: bold;
+}
+
+p
+{
+  text-align: justify;
+}
+
+.xAxis, .yAxis
+{
+  font-family: helvetica;
+  font-size: 15px;
+  font-weight: lighter;
+}
+
+.label
+{
+  font-family: sans-serif;
+  fill: black;
+  font-size: 18px;
+  font-style: normal;
+}
+
+/* columns */
+.column
+{
+  float: left;
+  width: 50%;
+  padding: 20px;
+}
+
+/* ensure content is below navbar */
+div.container-fluid
+{
+  padding-top: 20px;
+  overflow: scroll;
+  height: 100%;
+}
+
+/* Clear floats after the columns */
+.row:after
+{
+  content: "";
+  display: table;
+  clear: both;
+}
+
+.scatter
+{
+  background: darkgrey;
+}
+
+.title
+{
+  font-size: 22px;
+  fill: black;
+}
+
+/* navbar */
+.topnav
+{
+  background-color: #333;
+  overflow: scroll;
+}
+
+/* navbar elements */
+.topnav a
+{
+  float: left;
+  color: #f2f2f2;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  font-size: 17px;
+}
+
+/* color change navbar */
+.topnav a:hover
+{
+    background-color: #3E99E9;
+    color: black;
+}
+
+/* axes */
+/* .xAxis path, .xAxis line,
+.yAxis path, .yAxis line
+{
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.xAxis path
+{
+  display: none;
+} */
