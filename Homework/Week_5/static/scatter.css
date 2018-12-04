@@ -1,0 +1,174 @@
+html, body
+{
+    height: 100%;
+    overflow: scroll;
+    background: darkgrey;
+}
+
+h1
+{
+  font-size: 35px;
+  font-weight: bold;
+  text-align: center;
+}
+
+p
+{
+  text-align: justify;
+}
+
+/* navbar */
+.topnav
+{
+  background-color: #333;
+  overflow: scroll;
+}
+
+.topnav a
+{
+  float: left;
+  color: #f2f2f2;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  font-size: 17px;
+}
+
+.topnav a:hover
+{
+    background-color: #3E99E9;
+    color: black;
+}
+
+/* ensure content is below navbar */
+div.container-fluid
+{
+  padding-top: 20px;
+  overflow: scroll;
+  height: 100%;
+}
+
+/* layout */
+#menu
+{
+  position: absolute;
+  text-align: right;
+  top: 160px;
+  left: 130px;
+  width: 100px;
+  cursor: pointer;
+  overflow: scroll;
+}
+
+#menuTitle
+{
+  font-family: helvetica;
+  font-size: 18px;
+  font-weight: bold;
+  position: absolute;
+  text-align: left;
+  top: 155px;
+  left: 30px;
+  width: 120px;
+  overflow: scroll;
+}
+
+#chart
+{
+  overflow: scroll;
+  position: absolute;
+  top: 130px;
+  left: 250px;
+  width: auto;
+}
+
+#textTitle
+{
+  font-family: helvetica;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+#text
+{
+  overflow: scroll;
+  float: left;
+  position: absolute;
+  top: 360px;
+  left: 30px;
+  width: 200px;
+  font-size: 12px;
+}
+
+/* choice menu */
+ul
+{
+  list-style: none;
+  font-family: helvetica;
+  font-size: 15px;
+  padding: 0;
+  margin-top: 0px;
+}
+
+/* li
+{
+  width: 30px;
+} */
+
+li:hover
+{
+  font-size: 20px;
+}
+
+li.selected
+{
+  font-weight: bold;
+}
+
+/* graph */
+.graphTitle
+{
+  font-family: helvetica;
+  font-size: 22px;
+  fill: black;
+}
+
+.subtitle
+{
+  font-size: 18px;
+  font-family: helvetica;
+  fill: black;
+}
+
+.xAxis, .yAxis
+{
+  font-family: helvetica;
+  font-size: 15px;
+  font-weight: lighter;
+}
+
+.label
+{
+  font-family: sans-serif;
+  fill: black;
+  font-size: 18px;
+  font-style: normal;
+}
+
+.scatter
+{
+  background: darkgrey;
+}
+
+circle:hover
+{
+  r: 10;
+}
+
+/* .xAxis path, .xAxis line,
+.yAxis path, .yAxis line
+{
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+} */
