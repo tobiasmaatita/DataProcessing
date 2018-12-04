@@ -33,7 +33,8 @@ window.onload = function() {
     var yTextBuffer = 35;
     var titleBuffer = 45;
 
-    var svg = d3.select('.wrapper').append('svg')
+    wrapper.append('div').attr('id', 'chartdiv')
+    var svg = d3.select('#chartdiv').append('svg')
                 .attr('width', svgWidth)
                 .attr('height', svgHeight)
                 .attr('class', 'scatter')
@@ -57,6 +58,7 @@ window.onload = function() {
     wrapper.append('div').attr('id', 'menuTitle').text('Pick a year:');
     wrapper.append('div').attr('id', 'text');
     wrapper.append('div').attr('id', 'title');
+
     d3.select('#text').append('p').append('strong').attr('id', 'textTitle').text("D3 Scatterplot");
     d3.selectAll('#text').append('p').attr('id', 'about').text("This scatterplot shows the relation \
     between the consumer confidence index and the unemployment rate in twelve different countries. \
@@ -290,10 +292,12 @@ window.onload = function() {
 
       svg.selectAll('.xAxis')
          .transition()
+         .duration(750)
           .call(xAxis);
 
       svg.selectAll('.yAxis')
          .transition()
+         .duration(750)
           .call(yAxis);
 
       svg.selectAll('.graphTitle')

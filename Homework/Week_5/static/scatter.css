@@ -73,7 +73,7 @@ div.container-fluid
   overflow: scroll;
 }
 
-#chart
+#chartdiv
 {
   overflow: scroll;
   position: absolute;
