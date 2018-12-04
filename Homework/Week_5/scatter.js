@@ -29,7 +29,7 @@ window.onload = function() {
     var topBuffer = 30;
 
     var xAxisBuffer = 100;
-    var xTextBuffer = 35;
+    var xTextBuffer = 45;
     var yTextBuffer = 35;
     var titleBuffer = 45;
 
