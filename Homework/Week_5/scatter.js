@@ -9,22 +9,37 @@ window.onload = function() {
 
   Promise.all(request).then(function(response){
     var data = transformResponse(response[0]);
+    var parsed = parseData(data);
+    var allInfo = parsed[0];
+    var countries = parsed[1];
 
     var options = ['2007', '2008', '2009', '2010', '2011', '2012', '2013', '2014', '2015'];
-    var xAxislabel = '2007'
-    var rightCol = d3.select('#rightCol');
-    var leftCol = d3.select('#leftCol');
+    var firstYear = options[0]
+    var xAxisLabel = '2007'
+    // var right = d3.select('#right');
+    var wrapper = d3.select('.wrapper');
+    var ul = wrapper.append('ul').attr('id', 'menu')
 
-    var ul = leftCol.append('ul').attr('id', 'menu')
+    // svg element
+    var svgWidth = 1000;
+    var svgHeight = 575;
 
-    // countries and years set
-    var countries = new Set();
-    var years = new Set();
-    for (var i = 0; i < Object.keys(data).length; i++) {
-      countries.add(data[i]['Country']);
-      years.add(data[i]['time']);
-    }
+    var leftBuffer = 80;
+    var rightBuffer = 50;
+    var topBuffer = 30;
 
+    var xAxisBuffer = 100;
+    var xTextBuffer = 35;
+    var yTextBuffer = 35;
+    var titleBuffer = 45;
+
+    var svg = d3.select('.wrapper').append('svg')
+                .attr('width', svgWidth)
+                .attr('height', svgHeight)
+                .attr('class', 'scatter')
+                .attr('id', 'chart');
+
+    // add menu
     d3.select('#menu')
     .selectAll('li')
     .data(options)
@@ -32,257 +47,322 @@ window.onload = function() {
     .append('li')
     .text(function(d) {return d;})
     .classed('selected', function(d) {
-      return d === xAxislabel;
+      return d === xAxisLabel;
     })
     .on('click', function(d) {
-      xAxis = d;
-      updateChart();
-      updateMenus();
+      updateChart(d);
+      updateMenus(d);
     });
 
-    // arrays for iteration
-    countries = Array.from(countries);
-    years = Array.from(years);
+    wrapper.append('div').attr('id', 'menuTitle').text('Pick a year:');
+    wrapper.append('div').attr('id', 'text');
+    wrapper.append('div').attr('id', 'title');
+    d3.select('#text').append('p').append('strong').attr('id', 'textTitle').text("D3 Scatterplot");
+    d3.selectAll('#text').append('p').attr('id', 'about').text("This scatterplot shows the relation \
+    between the consumer confidence index and the unemployment rate in twelve different countries. \
+    The consumer confidence index measures the degree of optimism expressed through the spending and \
+    saving activities of a country's customers. The unemployment rate shows the unemployed percentage \
+    of a country's population. From the menu above, you can pick a year to further inspect. \
+    Hover over one of the dots to find out which country it represents.");
 
-    allData = [];
+    d3.select('#title').append('h1').text('Correlation between unemployment rate and consumer confidence\
+    , 2007-2017');
 
-    // keys are years
-    for (var k = 0; k < years.length; k++)
-    {
+    firstScatter(allInfo)
 
-      var key = years[k]
-      allData.push({key: key, value: []})
 
-      for (var i = 0; i < Object.keys(data).length; i++)
+    function parseData(data) {
+      // countries and years set
+      var countries = new Set();
+      var years = new Set();
+      for (var i = 0; i < Object.keys(data).length; i++) {
+        countries.add(data[i]['Country']);
+        years.add(data[i]['time']);
+      }
+
+      // arrays for iteration
+      countries = Array.from(countries);
+      years = Array.from(years);
+
+      allData = [];
+
+      // keys are years
+      for (var k = 0; k < years.length; k++)
       {
-        // unemployment rate
-        if (data[i]['time'] == key && data[i]['Indicator'] == 'Unemployment rate')
+
+        var key = years[k]
+        allData.push({key: key, value: []})
+
+        for (var i = 0; i < Object.keys(data).length; i++)
         {
-          for (var j = 0; j < Object.keys(data).length; j++)
+          // unemployment rate
+          if (data[i]['time'] == key && data[i]['Indicator'] == 'Unemployment rate')
           {
-            // consumer confidence
-            if (data[j]['Country'] == data[i]['Country'] && data[j]['time'] == key && data[j]['Indicator'] == 'Consumer confidence')
+            for (var j = 0; j < Object.keys(data).length; j++)
             {
-              allData[k].value.push({name: data[i]['Country'], unemp: data[i]['datapoint'], conf: data[j]['datapoint']});
+              // consumer confidence
+              if (data[j]['Country'] == data[i]['Country'] && data[j]['time'] == key && data[j]['Indicator'] == 'Consumer confidence')
+              {
+                allData[k].value.push({name: data[i]['Country'], unemp: data[i]['datapoint'], conf: data[j]['datapoint']});
+              };
             };
           };
         };
       };
-    };
 
-    var allInfo = [];
+      var allInfo = [];
 
-    for (var i = 0; i < years.length; i++)
-    {
-      var yearInfo = [];
-      var year = years[i];
-
-      for (var j = 0; j < countries.length; j++)
+      for (var i = 0; i < years.length; i++)
       {
-        var country = countries[j];
-        var countryInfo = []
-        countryInfo.push(allData[i].value[j].unemp)
-        countryInfo.push(allData[i].value[j].conf)
-        yearInfo.push(countryInfo)
+        var yearInfo = [];
+        var year = years[i];
+
+        for (var j = 0; j < countries.length; j++)
+        {
+          var country = countries[j];
+          var countryInfo = []
+          countryInfo.push(allData[i].value[j].unemp)
+          countryInfo.push(allData[i].value[j].conf)
+          yearInfo.push(countryInfo)
+        }
+        allInfo.push(yearInfo)
       }
-      allInfo.push(yearInfo)
+      return [allInfo, countries];
     }
 
-    var info2007 = allInfo[0];
-    console.log(allInfo);
 
-    var unemp = [];
-    var conf = [];
-    for (var i = 0; i < info2007.length; i++){
-      unemp.push(info2007[i][0])
-      conf.push(info2007[i][1])
+    function firstData(allInfo) {
+      var info = allInfo[0];
+      var unemp = [];
+      var conf = [];
+      for (var i = 0; i < info.length; i++){
+        unemp.push(info[i][0]);
+        conf.push(info[i][1]);
+      }
+      var maxUnemp = d3.max(unemp);
+      var maxConf = d3.max(conf);
+      var minConf = d3.min(conf);
+
+      return [info, maxUnemp, maxConf, minConf];
     }
-    var maxUnemp = d3.max(unemp);
-    var maxConf = d3.max(conf);
-    var minConf = d3.min(conf);
-
-    // svg element
-    var svgWidth = 800;
-    var svgHeight = 500;
-
-    var leftBuffer = 80;
-    var rightBuffer = 50;
-    var topBuffer = 50;
-
-    var xAxisBuffer = 100;
-    var xTextBuffer = 45;
-    var yTextBuffer = 15;
-
-    var svg = d3.select('#rightCol').append('svg')
-                .attr('width', svgWidth)
-                .attr('height', svgHeight)
-                .attr('class', 'scatter');
-
-    // scales and axes
-    var yScale = d3.scaleLinear()
-                 .domain([0, 20])
-                 .range([svgHeight - xAxisBuffer,topBuffer]);
-
-    var xScale = d3.scaleLinear()
-                 .domain([minConf - 1, maxConf + 1])
-                 .range([leftBuffer, svgWidth-rightBuffer]);
-
-    var xTickScale = d3.scaleLinear()
-                    .domain([minConf - 1, maxConf + 1])
-                    .range([leftBuffer, svgWidth - rightBuffer]);
-
-    var xAxis = d3.axisBottom()
-                .ticks(4)
-                .scale(xTickScale);
-
-    var yAxis = d3.axisLeft()
-               .scale(yScale);
-
-    var colors = ['#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c','#fdbf6f','#ff7f00','#cab2d6','#6a3d9a','#ffff99','#b15928']
-    var colorscheme = d3.scaleOrdinal(d3.schemeCategory20).domain(countries.length)
-    console.log(colorscheme);
-
-    svg.selectAll('circle')
-       .data(info2007)
-       .enter()
-       .append('circle')
-       .attr('cx', function(d){
-         console.log(xScale(d[1]))
-         return xScale(d[1]);
-       })
-       .attr('cy', function(d){
-         return yScale(d[0]);
-       })
-       .attr('r', 7)
-       .attr('fill', function(d,i){
-         return colorscheme[i];
-       })
-       .attr('data-legend', function(d,i){
-         return countries[i];
-       });
-
-    svg.append('g')
-        .attr('class', 'xAxis')
-        .attr('transform', 'translate(0,' + (svgHeight - xAxisBuffer) + ')')
-        .call(xAxis)
-
-    svg.append('g')
-        .attr('class', 'yAxis')
-        .attr('transform', 'translate(' + leftBuffer + ',0)')
-        .call(yAxis);
-
-    // axis labels
-    svg.append('text')
-        .text('Consumer confidence rate')
-        .attr('text-anchor', 'middle')
-        .attr('class', 'label')
-        .attr('x',  (svgWidth + leftBuffer - rightBuffer)/2)
-        .attr('y', svgHeight - yTextBuffer);
-
-    svg.append('text')
-         .text('Unemployment rate')
-         .attr('text-anchor', 'middle')
-         .attr('class', 'label')
-         .attr('x', -(svgHeight-topBuffer)/2)
-         .attr('y', leftBuffer - xTextBuffer)
-         .attr('transform', 'rotate(-90)');
 
 
-    // sampleCategoricalData = ["Something","Something Else", "Another", "This", "That", "Etc"]
-    // colorscales = d3.scaleOrdinal(d3.schemeCategory20).domain(sampleCategoricalData);
-    //
-    // legend = svg.append('g')
-    //             .attr('class', 'legend')
-    //             .call(d3.legend)
+    function firstScatter(allInfo){
+
+      var info = firstData(allInfo);
+      var infoYear = info[0]
+      var maxUnemp = info[1];
+      var maxConf = info[2];
+      var minConf = info[3];
+
+      // scales and axes
+      var yScale = d3.scaleLinear()
+                   .domain([0, maxUnemp + 3])
+                   .range([svgHeight - xAxisBuffer, topBuffer]);
+
+      var xScale = d3.scaleLinear()
+                   .domain([minConf - 1, maxConf + 1])
+                   .range([leftBuffer, svgWidth-rightBuffer]);
+
+      var xTickScale = d3.scaleLinear()
+                      .domain([minConf - 1, maxConf + 1])
+                      .range([leftBuffer, svgWidth - rightBuffer]);
+
+      var xAxis = d3.axisBottom()
+                  .ticks(5)
+                  .scale(xTickScale);
+
+      var yAxis = d3.axisLeft()
+                 .scale(yScale);
+
+      // function make svg
+      svg.append('g')
+          .attr('class', 'xAxis')
+          .attr('transform', 'translate(0,' + (svgHeight - xAxisBuffer) + ')')
+          .call(xAxis)
+
+      svg.append('g')
+          .attr('class', 'yAxis')
+          .attr('transform', 'translate(' + leftBuffer + ',0)')
+          .call(yAxis);
+
+      // axis labels
+      svg.append('text')
+          .text('Consumer confidence index')
+          .attr('text-anchor', 'middle')
+          .attr('class', 'label')
+          .attr('x',  (svgWidth + leftBuffer - rightBuffer)/2)
+          .attr('y', svgHeight - yTextBuffer);
+
+      svg.append('text')
+           .text('Unemployment rate (%)')
+           .attr('text-anchor', 'middle')
+           .attr('class', 'label')
+           .attr('x', -(svgHeight)/2 + leftBuffer - rightBuffer)
+           .attr('y', leftBuffer - xTextBuffer)
+           .attr('transform', 'rotate(-90)');
+
+      svg.append('text')
+           .text('2007')
+           .attr('text-anchor', 'middle')
+           .attr('class', 'graphTitle')
+           .attr('id', 'sub')
+           .attr('x', (svgWidth + leftBuffer - rightBuffer)/2)
+           .attr('y', topBuffer)
+
+      svg.append('text')
+           .attr('id', 'country')
+           .attr('x', leftBuffer + yTextBuffer)
+           .attr('y', topBuffer + 100)
+           .attr('font-size', '100px')
+           .attr('fill', '#dddd')
 
 
-    // d3.select("svg").append("g").attr("transform", "translate(50,140)").attr("class", "legend").call(verticalLegend);
+      var colors = ['#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c','#fdbf6f','#ff7f00','#cab2d6','#6a3d9a','#ffff99','#b15928']
 
 
+      // mouseover and mouseout from www.charts.animateddata.co.uk/whatmakesushappy/
+      svg.selectAll('circle')
+         .data(infoYear)
+         .enter()
+         .append('circle')
+         .attr('cx', function(d){
+           return xScale(d[1]);
+         })
+         .attr('cy', function(d){
+           return yScale(d[0]);
+         })
+         .attr('r', 7)
+         .attr('fill', function(d,i){
+           return colors[i];
+         })
+         .attr('data-legend', function(d,i){
+           return countries[i];
+         })
+         .attr('cursor', 'pointer')
+         .on('mouseover', function(d, i) {
+            d3.select('#country')
+              .text(countries[i])
+              .transition()
+              .style('opacity', 1);
+         })
+         .on('mouseout', function(d, i){
+           d3.select('#country')
+             .transition()
+             .duration(1000)
+             .style('opacity', 0);
+         });
+    }
 
 
-    function updateChart(init) {
+    function updateAxes(year, maxUnemp, maxConf, minConf){
+
+      // scales and axes
+      var yScale = d3.scaleLinear()
+                   .domain([0, maxUnemp + 3])
+                   .range([svgHeight - xAxisBuffer,topBuffer]);
+
+      var xScale = d3.scaleLinear()
+                   .domain([minConf - 1, maxConf + 1])
+                   .range([leftBuffer, svgWidth-rightBuffer]);
+
+      var xTickScale = d3.scaleLinear()
+                      .domain([minConf - 1, maxConf + 1])
+                      .range([leftBuffer, svgWidth - rightBuffer]);
+
+      var xAxis = d3.axisBottom()
+                  .ticks(5)
+                  .scale(xTickScale);
+
+      var yAxis = d3.axisLeft()
+                 .scale(yScale);
+
+      // function make svg
+      svg.append('g')
+          .attr('class', 'xAxis')
+          .attr('transform', 'translate(0,' + (svgHeight - xAxisBuffer) + ')')
+          .call(xAxis);
+
+      svg.append('g')
+          .attr('class', 'yAxis')
+          .attr('transform', 'translate(' + leftBuffer + ',0)')
+          .call(yAxis);
+
+      svg.selectAll('.xAxis')
+         .transition()
+          .call(xAxis);
+
+      svg.selectAll('.yAxis')
+         .transition()
+          .call(yAxis);
+
+      svg.selectAll('.graphTitle')
+         .transition()
+         .text(year)
+
+       return [yScale, xScale, xAxis, yAxis];
+    }
+
+
+    function updateChart(d) {
     // based on https://charts.animateddata.co.uk/whatmakesushappy/
         // updateScales();
 
-        d3.select('svg g.chart')
-          .selectAll('circle')
-          .transition()
-          .duration(500)
-          .ease('quad-out')
-          .attr('cx', function(d) { // d is het jaartal, get allinfo[d-firstyear][1]
-            return isNaN(d[xAxis]) ? d3.select(this).attr('cx') : xScale(d[xAxis]);
-          })
-          .attr('cy', function(d) { // d is het jaartal, get allinfo[d-firstyear][0]
-            return isNaN(d[yAxis]) ? d3.select(this).attr('cy') : yScale(d[yAxis]);
-          })
-          .attr('r', function(d) { // r is 5
-            return isNaN(d[xAxis]) || isNaN(d[yAxis]) ? 0 : 12;
-          });
+        // make chart
+        var info = allInfo[d-firstYear];
+        var unemp = [];
+        var conf = [];
+        for (var i = 0; i < info.length; i++){
+          unemp.push(info[i][0])
+          conf.push(info[i][1])
+        }
+        var maxUnemp = d3.max(unemp);
+        var maxConf = d3.max(conf);
+        var minConf = d3.min(conf);
+        console.log(d);
 
-        // Also update the axes
-        d3.select('#xAxis')
-          .transition()
-          .call(makeXAxis);
+        var scales = updateAxes(d, maxUnemp, maxConf, minConf);
+        var yScale = scales[0];
+        var xScale = scales[1];
+        var xAxis = scales[2];
+        var yAxis = scales[3];
+        var colorscheme = d3.scaleOrdinal(d3.schemeCategory20).domain(countries.length)
 
-        d3.select('#yAxis')
-          .transition()
-          .call(makeYAxis);
+        makeScatter(info, yScale, xScale)
 
-        // Update axis labels
-        d3.select('#xLabel')
-          .text(descriptions[xAxis]);
-
-        // Update correlation
-        var xArray = _.map(data, function(d) {return d[xAxis];});
-        var yArray = _.map(data, function(d) {return d[yAxis];});
-        var c = getCorrelation(xArray, yArray);
-        var x1 = xScale.domain()[0], y1 = c.m * x1 + c.b;
-        var x2 = xScale.domain()[1], y2 = c.m * x2 + c.b;
-
-        // Fade in
-        d3.select('#bestfit')
-          .style('opacity', 0)
-          .attr({'x1': xScale(x1), 'y1': yScale(y1), 'x2': xScale(x2), 'y2': yScale(y2)})
-          .transition()
-          .duration(1500)
-          .style('opacity', 1);
       }
 
-      function updateScales() {
-        xScale = d3.scale.linear()
-                        .domain([bounds[xAxis].min, bounds[xAxis].max])
-                        .range([20, 780]);
 
-        yScale = d3.scale.linear()
-                        .domain([bounds[yAxis].min, bounds[yAxis].max])
-                        .range([600, 100]);
-      }
+    function makeScatter(info, yScale, xScale){
 
-      // function makeXAxis(s) {
-      //   s.call(d3.svg.axis()
-      //     .scale(xScale)
-      //     .orient("bottom"));
-      // }
-      //
-      // function makeYAxis(s) {
-      //   s.call(d3.svg.axis()
-      //     .scale(yScale)
-      //     .orient("left"));
-      // }
+      var colors = ['#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c','#fdbf6f','#ff7f00','#cab2d6','#6a3d9a','#ffff99','#b15928']
 
-      function updateMenus() {
-        d3.select('#x-axis-menu')
-          .selectAll('li')
-          .classed('selected', function(d) {
-            return d === xAxis;
-          });
-        d3.select('#y-axis-menu')
-          .selectAll('li')
-          .classed('selected', function(d) {
-            return d === yAxis;
+      d3.select('svg')
+        .selectAll('circle')
+        .data(info)
+        .transition(d3.easeQuad)
+        .duration(500)
+        .attr('cx', function(d) {
+          console.log(d[1]);
+          return xScale(d[1]);
+        })
+        .attr('cy', function(d) {
+          return yScale(d[0]);
+        })
+        .attr('r', 7)
+        .attr('fill', function(d, i){
+          return colors[i];
         });
-      }
+    }
+
+
+    function updateMenus(year) {
+      d3.select('#menu')
+        .selectAll('li')
+        .classed('selected', function(e) {
+          return e === year;
+        });
+    }
 
   });
 };
