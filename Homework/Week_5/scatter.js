@@ -8,15 +8,20 @@ window.onload = function() {
   var request = [d3.json(consumers)]
 
   Promise.all(request).then(function(response){
+
+    // transform received data, from data.mprog
     var data = transformResponse(response[0]);
+
+    // parse data
     var parsed = parseData(data);
     var allInfo = parsed[0];
     var countries = parsed[1];
 
+    // years
     var options = ['2007', '2008', '2009', '2010', '2011', '2012', '2013', '2014', '2015'];
     var firstYear = options[0]
     var xAxisLabel = '2007'
-    // var right = d3.select('#right');
+
     var wrapper = d3.select('.wrapper');
     var ul = wrapper.append('ul').attr('id', 'menu')
 
@@ -33,6 +38,7 @@ window.onload = function() {
     var yTextBuffer = 35;
     var titleBuffer = 45;
 
+    // add svg to page
     wrapper.append('div').attr('id', 'chartdiv')
     var svg = d3.select('#chartdiv').append('svg')
                 .attr('width', svgWidth)
@@ -55,9 +61,15 @@ window.onload = function() {
       updateMenus(d);
     });
 
+
+    // text on page
     wrapper.append('div').attr('id', 'menuTitle').text('Pick a year:');
     wrapper.append('div').attr('id', 'text');
     wrapper.append('div').attr('id', 'title');
+    wrapper.append('div').attr('id', 'values');
+    wrapper.append('div').attr('class', 'values').attr('id', 'countName');
+    wrapper.append('div').attr('class', 'values').attr('id', 'unemp');
+    wrapper.append('div').attr('class', 'values').attr('id', 'conf');
 
     d3.select('#text').append('p').append('strong').attr('id', 'textTitle').text("D3 Scatterplot");
     d3.selectAll('#text').append('p').attr('id', 'about').text("This scatterplot shows the relation \
@@ -74,10 +86,13 @@ window.onload = function() {
     d3.select('#title').append('h1').text('Correlation between unemployment rate and consumer confidence\
     , 2007-2017');
 
+    // initial scatter
     firstScatter(allInfo)
 
 
     function parseData(data) {
+      // preprocess data to use in scatterplots
+
       // countries and years set
       var countries = new Set();
       var years = new Set();
@@ -96,9 +111,11 @@ window.onload = function() {
       for (var k = 0; k < years.length; k++)
       {
 
+        // keys in dictionary
         var key = years[k]
         allData.push({key: key, value: []})
 
+        // loop through data
         for (var i = 0; i < Object.keys(data).length; i++)
         {
           // unemployment rate
@@ -116,7 +133,9 @@ window.onload = function() {
         };
       };
 
+      // allInfo includes info per year
       var allInfo = [];
+
 
       for (var i = 0; i < years.length; i++)
       {
@@ -133,11 +152,15 @@ window.onload = function() {
         }
         allInfo.push(yearInfo)
       }
+
+      // return allInfo and countries
       return [allInfo, countries];
     }
 
 
     function firstData(allInfo) {
+      // get data for initial scatterplot
+
       var info = allInfo[0];
       var unemp = [];
       var conf = [];
@@ -154,6 +177,7 @@ window.onload = function() {
 
 
     function firstScatter(allInfo){
+      // make initial scatterplot
 
       var info = firstData(allInfo);
       var infoYear = info[0]
@@ -200,7 +224,6 @@ window.onload = function() {
          .attr('id', 'coefficient');
 
       var fit = fitline(infoYear, xScale);
-      console.log(fit);
       setLine(xScale, yScale, fit);
 
       // axis labels
@@ -229,14 +252,14 @@ window.onload = function() {
 
       svg.append('text')
            .attr('id', 'country')
-           .attr('x', leftBuffer + yTextBuffer)
-           .attr('y', topBuffer + 100)
+           .attr('text-anchor', 'end')
+           .attr('x', svgWidth - rightBuffer)
+           .attr('y', svgHeight - xAxisBuffer - yTextBuffer)
            .attr('font-size', '100px')
-           .attr('fill', '#eee')
+           .attr('fill', 'darkgrey')
 
 
       var colors = ['#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c','#fdbf6f','#ff7f00','#cab2d6','#6a3d9a','#ffff99','#b15928']
-
 
       // mouseover and mouseout from www.charts.animateddata.co.uk/whatmakesushappy/
       svg.selectAll('circle')
@@ -262,17 +285,42 @@ window.onload = function() {
               .text(countries[i])
               .transition()
               .style('opacity', 1);
+            d3.select('#countName')
+              .text(countries[i])
+              .transition()
+              .style('opacity', 1);
+            d3.select('#unemp')
+              .text("Unemployment: " + infoYear[i][0] + "%")
+              .transition()
+              .style('opacity', 1);
+            d3.select('#conf')
+              .text("Confidence: " + infoYear[i][1])
+              .transition()
+              .style('opacity', 1);
          })
          .on('mouseout', function(d, i){
            d3.select('#country')
              .transition()
              .duration(1000)
-             .style('opacity', 0);
+             .style('opacity', 0)
+           d3.select('#countName')
+             .transition()
+             .duration(2000)
+             .style('opacity', 0)
+           d3.select('#unemp')
+             .transition()
+             .duration(2000)
+             .style('opacity', 0)
+           d3.select('#conf')
+             .transition()
+             .duration(2000)
+             .style('opacity', 0)
          });
     }
 
 
     function updateAxes(year, maxUnemp, maxConf, minConf){
+      // update scales and axes
 
       // scales and axes
       var yScale = d3.scaleLinear()
@@ -294,7 +342,7 @@ window.onload = function() {
       var yAxis = d3.axisLeft()
                  .scale(yScale);
 
-      // function make svg
+      // make svg
       svg.append('g')
           .attr('class', 'xAxis')
           .attr('transform', 'translate(0,' + (svgHeight - xAxisBuffer) + ')')
@@ -327,8 +375,10 @@ window.onload = function() {
     // based on https://charts.animateddata.co.uk/whatmakesushappy/
         // updateScales();
 
-        // make chart
+        // get needed info
         var info = allInfo[d-firstYear];
+
+        // separate unemployment and consumer confidence
         var unemp = [];
         var conf = [];
         for (var i = 0; i < info.length; i++){
@@ -339,14 +389,17 @@ window.onload = function() {
         var maxConf = d3.max(conf);
         var minConf = d3.min(conf);
 
+        // update scales and axes
         var scales = updateAxes(d, maxUnemp, maxConf, minConf);
         var yScale = scales[0];
         var xScale = scales[1];
         var xAxis = scales[2];
         var yAxis = scales[3];
-        var colorscheme = d3.scaleOrdinal(d3.schemeCategory20).domain(countries.length)
 
+        // make scatterplot
         makeScatter(info, yScale, xScale);
+
+        // make fitline
         var fit = fitline(info, xScale);
         setLine(xScale, yScale, fit);
 
@@ -354,9 +407,12 @@ window.onload = function() {
 
 
     function makeScatter(info, yScale, xScale){
+      // Add dots to the svg
 
+      // colors to use, from http://colorbrewer2.org
       var colors = ['#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c','#fdbf6f','#ff7f00','#cab2d6','#6a3d9a','#ffff99','#b15928']
 
+      // add dots
       d3.select('svg')
         .selectAll('circle')
         .data(info)
@@ -371,11 +427,49 @@ window.onload = function() {
         .attr('r', 7)
         .attr('fill', function(d, i){
           return colors[i];
+        })
+        .on('mouseover', function(d, i) {
+           d3.select('#country')
+             .text(countries[i])
+             .transition()
+             .style('opacity', 1);
+           d3.select('#countName')
+             .transition()
+             .style('opacity', 1)
+             .text(countries[i])
+           d3.select('#unemp')
+             .text("Unemployment: " + infoYear[i][0])
+             .transition()
+             .style('opacity', 1)
+           d3.select('#conf')
+             .text("Confidence: " + infoYear[i][0])
+             .transition()
+             .style('opacity', 1);
+        })
+        .on('mouseout', function(d, i){
+          d3.select('#country')
+            .transition()
+            .duration(1000)
+            .style('opacity', 0)
+          d3.select('#countName')
+            .transition()
+            .duration(2000)
+            .style('opacity', 0)
+          d3.select('#unemp')
+            .transition()
+            .duration(2000)
+            .style('opacity', 0)
+          d3.select('#conf')
+            .transition()
+            .duration(2000)
+            .style('opacity', 0)
         });
     }
 
 
     function updateMenus(year){
+      // update the menu with years
+
       d3.select('#menu')
         .selectAll('li')
         .classed('selected', function(e) {
@@ -388,6 +482,7 @@ window.onload = function() {
       // calculate correlation coefficient using Pearson.
       // Formula found here: https://www.statisticshowto.datasciencecentral.com/probability-and-statistics/correlation-coefficient-formula/
 
+      // all needed variables
       var xy = new Array;
       var allX = new Array;
       var allY = new Array;
@@ -398,6 +493,7 @@ window.onload = function() {
       var sumy_2 = 0;
       var n = infoYear.length
 
+      // calculate sums and get all values to calculate stdev
       for (var i = 0; i < n; i++) {
         var x = infoYear[i][1];
         sumX += x;
@@ -412,6 +508,7 @@ window.onload = function() {
         sumy_2 += (y*y);
       };
 
+      // get stdevs
       var devX = getStdev(allX);
       var stdevX = devX[0];
       var meanX = devX[1];
@@ -420,6 +517,7 @@ window.onload = function() {
       var stdevY = devY[0];
       var meanY = devY[1];
 
+      // calculate correlation
       var numerator = n * (sumXY) - (sumX * sumY);
       var denominatorFirst = n * sumx_2 - (sumX * sumX);
       var denominatorSecond = n * sumy_2 - (sumY * sumY);
@@ -462,6 +560,8 @@ window.onload = function() {
 
 
     function fitline(info, xScale){
+      // calculate x1, y1, x2, y2 to plot fitline
+
       // get x1, x2, y1, y2 for fitline
       var regression = getCorrelation(info);
       var fitX1 = xScale.domain()[0];
@@ -476,6 +576,9 @@ window.onload = function() {
 
 
     function setLine(xScale, yScale, fit){
+      // plot fitline onto svg
+
+      // plot line
       d3.select('#fitline')
         .style('opacity', 0)
         .attr('x1', xScale(fit.x1))
@@ -486,7 +589,7 @@ window.onload = function() {
         .duration(800)
         .style('opacity', 0.5);
 
-      console.log(Math.round(fit.r * 100)/100);
+      // add slope
       d3.select('#coefficient')
         .style('opacity', 0)
         .text(function(d) {

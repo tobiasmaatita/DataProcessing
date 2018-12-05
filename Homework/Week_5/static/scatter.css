@@ -166,6 +166,50 @@ circle:hover
   stroke-width: 8px;
 }
 
+#countName
+{
+  font-weight: bold;
+  font-size: 15px;
+  font-family: helvetica;
+  overflow: scroll;
+  position: absolute;
+  float: left;
+  left: 1265px;
+  top: 500px;
+}
+
+#unemp
+{
+  font-size: 15px;
+  font-family: helvetica;
+  overflow: scroll;
+  position: absolute;
+  float: left;
+  left: 1265px;
+  top: 520px;
+}
+
+#conf
+{
+  font-size: 15px;
+  font-family: helvetica;
+  overflow: scroll;
+  position: absolute;
+  float: left;
+  left: 1265px;
+  top: 540px;
+}
+
+/* .values
+{
+  overflow: scroll;
+  float: left;
+  position: absolute;
+  top: 1000px;
+  left: 1200px;
+  font-size: 12px;
+} */
+
 /* .xAxis path, .xAxis line,
 .yAxis path, .yAxis line
 {
