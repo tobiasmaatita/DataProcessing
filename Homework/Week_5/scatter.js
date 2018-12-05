@@ -65,7 +65,11 @@ window.onload = function() {
     The consumer confidence index measures the degree of optimism expressed through the spending and \
     saving activities of a country's customers. The unemployment rate shows the unemployed percentage \
     of a country's population. From the menu above, you can pick a year to further inspect. \
-    Hover over one of the dots to find out which country it represents.");
+    Hover over one of the dots to find out which country it represents. Through the dots, \
+    a trendline is fitted to show the correlation between consumer confidence and unemployment \
+    rate. The correlation coefficient is shown atop the line. The correlation appears negative and varies \
+    in strength. However, in 2015, the correlation seems positive. This is a strange occurence and \
+    begs the question whether these two factors are directly related.");
 
     d3.select('#title').append('h1').text('Correlation between unemployment rate and consumer confidence\
     , 2007-2017');
@@ -187,6 +191,17 @@ window.onload = function() {
           .attr('class', 'yAxis')
           .attr('transform', 'translate(' + leftBuffer + ',0)')
           .call(yAxis);
+
+      // fit line
+      svg.append('line')
+         .attr('id', 'fitline');
+
+      svg.append('text')
+         .attr('id', 'coefficient');
+
+      var fit = fitline(infoYear, xScale);
+      console.log(fit);
+      setLine(xScale, yScale, fit);
 
       // axis labels
       svg.append('text')
@@ -323,7 +338,6 @@ window.onload = function() {
         var maxUnemp = d3.max(unemp);
         var maxConf = d3.max(conf);
         var minConf = d3.min(conf);
-        console.log(d);
 
         var scales = updateAxes(d, maxUnemp, maxConf, minConf);
         var yScale = scales[0];
@@ -332,7 +346,9 @@ window.onload = function() {
         var yAxis = scales[3];
         var colorscheme = d3.scaleOrdinal(d3.schemeCategory20).domain(countries.length)
 
-        makeScatter(info, yScale, xScale)
+        makeScatter(info, yScale, xScale);
+        var fit = fitline(info, xScale);
+        setLine(xScale, yScale, fit);
 
       }
 
@@ -347,7 +363,6 @@ window.onload = function() {
         .transition(d3.easeQuad)
         .duration(500)
         .attr('cx', function(d) {
-          console.log(d[1]);
           return xScale(d[1]);
         })
         .attr('cy', function(d) {
@@ -360,12 +375,129 @@ window.onload = function() {
     }
 
 
-    function updateMenus(year) {
+    function updateMenus(year){
       d3.select('#menu')
         .selectAll('li')
         .classed('selected', function(e) {
           return e === year;
         });
+    }
+
+
+    function getCorrelation(infoYear){
+      // calculate correlation coefficient using Pearson.
+      // Formula found here: https://www.statisticshowto.datasciencecentral.com/probability-and-statistics/correlation-coefficient-formula/
+
+      var xy = new Array;
+      var allX = new Array;
+      var allY = new Array;
+      var sumX = 0;
+      var sumY = 0;
+      var sumXY = 0;
+      var sumx_2 = 0;
+      var sumy_2 = 0;
+      var n = infoYear.length
+
+      for (var i = 0; i < n; i++) {
+        var x = infoYear[i][1];
+        sumX += x;
+        allX.push(x);
+
+        var y = infoYear[i][0];
+        sumY += y;
+        allY.push(y);
+
+        sumXY += (x*y);
+        sumx_2 += (x*x);
+        sumy_2 += (y*y);
+      };
+
+      var devX = getStdev(allX);
+      var stdevX = devX[0];
+      var meanX = devX[1];
+
+      var devY = getStdev(allY);
+      var stdevY = devY[0];
+      var meanY = devY[1];
+
+      var numerator = n * (sumXY) - (sumX * sumY);
+      var denominatorFirst = n * sumx_2 - (sumX * sumX);
+      var denominatorSecond = n * sumy_2 - (sumY * sumY);
+      var denomProd = denominatorFirst * denominatorSecond;
+      var denominator = Math.sqrt(denomProd);
+      var corrCoef = numerator / denominator;
+
+      // y = b0 + b1x
+      var b1 = corrCoef * (stdevY / stdevX);
+      var b0 = meanY - (b1 * meanX);
+
+      return {b0:b0, b1:b1, corrCoef:corrCoef};
+
+    }
+
+
+    function getStdev(values){
+      // calculate the standard deviation of observed values
+
+      var n = values.length;
+      var sum = 0;
+
+      // calculate mean
+      for (var i = 0; i < n; i++) {
+        sum += values[i];
+      }
+      var mean = sum/n;
+
+      // calculate sum of squared variance
+      var ssVariance = 0;
+      for (var i = 0; i < n; i++) {
+        ssVariance += ((values[i] - mean) * (values[i] - mean));
+      }
+
+      // calculate stdev
+      var stdev = Math.sqrt(ssVariance / n);
+
+      return [stdev, mean];
+    }
+
+
+    function fitline(info, xScale){
+      // get x1, x2, y1, y2 for fitline
+      var regression = getCorrelation(info);
+      var fitX1 = xScale.domain()[0];
+      var fitX2 = xScale.domain()[1];
+
+      // y = b0 + b1x
+      var fitY1 = regression.b0 + regression.b1 * fitX1;
+      var fitY2 = regression.b0 + regression.b1 * fitX2;
+
+      return {x1:fitX1, x2:fitX2, y1:fitY1, y2:fitY2, r:regression.corrCoef};
+    }
+
+
+    function setLine(xScale, yScale, fit){
+      d3.select('#fitline')
+        .style('opacity', 0)
+        .attr('x1', xScale(fit.x1))
+        .attr('y1', yScale(fit.y1))
+        .attr('x2', xScale(fit.x2))
+        .attr('y2', yScale(fit.y2))
+        .transition()
+        .duration(800)
+        .style('opacity', 0.5);
+
+      console.log(Math.round(fit.r * 100)/100);
+      d3.select('#coefficient')
+        .style('opacity', 0)
+        .text(function(d) {
+          return 'r =' + Math.round(fit.r * 100)/100;
+        })
+        .attr('x', xScale(fit.x1) + 10)
+        .attr('y', yScale(fit.y1) - 15)
+        .transition()
+        .duration(800)
+        .style('opacity', 1);
+
     }
 
   });

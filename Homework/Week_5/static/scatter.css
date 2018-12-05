@@ -2,7 +2,7 @@ html, body
 {
     height: 100%;
     overflow: scroll;
-    background: darkgrey;
+    background: #ddd;
 }
 
 h1
@@ -54,7 +54,7 @@ div.container-fluid
   position: absolute;
   text-align: right;
   top: 160px;
-  left: 130px;
+  left: 1200px;
   width: 100px;
   cursor: pointer;
   overflow: scroll;
@@ -68,7 +68,7 @@ div.container-fluid
   position: absolute;
   text-align: left;
   top: 155px;
-  left: 30px;
+  left: 1150px;
   width: 120px;
   overflow: scroll;
 }
@@ -94,7 +94,7 @@ div.container-fluid
   overflow: scroll;
   float: left;
   position: absolute;
-  top: 360px;
+  top: 155px;
   left: 30px;
   width: 200px;
   font-size: 12px;
@@ -109,11 +109,6 @@ ul
   padding: 0;
   margin-top: 0px;
 }
-
-/* li
-{
-  width: 30px;
-} */
 
 li:hover
 {
@@ -157,12 +152,18 @@ li.selected
 
 .scatter
 {
-  background: darkgrey;
+  background: #ddd;
 }
 
 circle:hover
 {
   r: 10;
+}
+
+#fitline
+{
+  stroke: darkgrey;
+  stroke-width: 8px;
 }
 
 /* .xAxis path, .xAxis line,
