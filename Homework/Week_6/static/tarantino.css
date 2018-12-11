@@ -1,0 +1,144 @@
+html, body
+{
+    height: 100%;
+    overflow: scroll;
+    background: #ddd;
+}
+
+h1
+{
+  font-size: 35px;
+  font-weight: bold;
+  text-align: center;
+}
+
+p
+{
+  text-align: justify;
+}
+
+/* navbar */
+.topnav
+{
+  background-color: #333;
+  overflow: scroll;
+}
+
+.topnav a
+{
+  float: left;
+  color: #f2f2f2;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  font-size: 17px;
+}
+
+.topnav a:hover
+{
+    background-color: #3E99E9;
+    color: black;
+}
+
+/* ensure content is below navbar */
+div.container-fluid
+{
+  padding-top: 20px;
+  overflow: scroll;
+  height: 100%;
+}
+
+
+/* layout */
+#menu
+{
+  border: 1px solid black;
+  position: absolute;
+  text-align: left;
+  /* top: 160px;
+  left: 1200px;
+  width: 100px; */
+  cursor: pointer;
+  overflow: hidden;
+}
+
+#barchart
+{
+  border: 1px solid black;
+  overflow: hidden;
+  width: 1300;
+  position: absolute;
+  left: 180px;
+}
+
+/* choice menu */
+ul
+{
+  list-style: none;
+  font-family: helvetica;
+  font-size: 15px;
+  padding: 0;
+  margin-top: 0px;
+}
+
+li:hover
+{
+  font-size: 20px;
+}
+
+li.selected
+{
+  font-weight: bold;
+}
+
+
+/* charts */
+.xAxis, .yAxis
+{
+  font-family: helvetica;
+  font-size: 12px;
+  font-weight: lighter;
+}
+
+.grid path
+{
+  display: none;
+}
+
+.bar:hover
+{
+  fill: RGB(92, 1, 32);
+}
+
+/* d3 tip from http://bl.ocks.org/Caged/6476579*/
+.d3-tip {
+  line-height: 1;
+
+  font-weight: normal;
+  padding: 12px;
+  background: white;
+  color: black;
+  border-radius: 10px;
+  text-align: center;
+  word-wrap: break-word;
+}
+
+/* Creates a small triangle extender for the tooltip */
+.d3-tip:after {
+  box-sizing: border-box;
+  display: inline;
+  font-size: 10px;
+  width: 100%;
+  line-height: 1;
+  color: white;
+  content: "\25BC";
+  position: absolute;
+  text-align: center;
+}
+
+/* Style northward tooltips differently */
+.d3-tip.n:after {
+  margin: -1px 0 0 0;
+  top: 100%;
+  left: 0;
+}

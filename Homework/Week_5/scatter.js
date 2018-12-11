@@ -57,8 +57,10 @@ window.onload = function() {
       return d === xAxisLabel;
     })
     .on('click', function(d) {
-      updateChart(d);
+      console.log('click');
       updateMenus(d);
+      updateChart(d);
+
     });
 
 
@@ -76,7 +78,7 @@ window.onload = function() {
     between the consumer confidence index and the unemployment rate in twelve different countries. \
     The consumer confidence index measures the degree of optimism expressed through the spending and \
     saving activities of a country's customers. The unemployment rate shows the unemployed percentage \
-    of a country's population. From the menu above, you can pick a year to further inspect. \
+    of a country's population. From the menu to the right, you can pick a year to further inspect. \
     Hover over one of the dots to find out which country it represents. Through the dots, \
     a trendline is fitted to show the correlation between consumer confidence and unemployment \
     rate. The correlation coefficient is shown atop the line. The correlation appears negative and varies \
@@ -373,7 +375,6 @@ window.onload = function() {
 
     function updateChart(d) {
     // based on https://charts.animateddata.co.uk/whatmakesushappy/
-        // updateScales();
 
         // get needed info
         var info = allInfo[d-firstYear];
@@ -427,49 +428,12 @@ window.onload = function() {
         .attr('r', 7)
         .attr('fill', function(d, i){
           return colors[i];
-        })
-        .on('mouseover', function(d, i) {
-           d3.select('#country')
-             .text(countries[i])
-             .transition()
-             .style('opacity', 1);
-           d3.select('#countName')
-             .transition()
-             .style('opacity', 1)
-             .text(countries[i])
-           d3.select('#unemp')
-             .text("Unemployment: " + infoYear[i][0])
-             .transition()
-             .style('opacity', 1)
-           d3.select('#conf')
-             .text("Confidence: " + infoYear[i][0])
-             .transition()
-             .style('opacity', 1);
-        })
-        .on('mouseout', function(d, i){
-          d3.select('#country')
-            .transition()
-            .duration(1000)
-            .style('opacity', 0)
-          d3.select('#countName')
-            .transition()
-            .duration(2000)
-            .style('opacity', 0)
-          d3.select('#unemp')
-            .transition()
-            .duration(2000)
-            .style('opacity', 0)
-          d3.select('#conf')
-            .transition()
-            .duration(2000)
-            .style('opacity', 0)
         });
-    }
+    };
 
 
     function updateMenus(year){
       // update the menu with years
-
       d3.select('#menu')
         .selectAll('li')
         .classed('selected', function(e) {
