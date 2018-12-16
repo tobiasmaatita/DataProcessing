@@ -1,7 +1,7 @@
 html, body
 {
     height: 100%;
-    overflow: scroll;
+    /* overflow: scroll; */
     background: #ddd;
 }
 
@@ -62,13 +62,58 @@ div.container-fluid
   overflow: hidden;
 }
 
-#barchart
+/* #barchart
 {
   border: 1px solid black;
   overflow: hidden;
   width: 1300;
   position: absolute;
   left: 180px;
+} */
+
+#introText
+{
+  /* border: 1px solid black; */
+  position: absolute;
+  left: 20px;
+  width: 250px;
+  /* overflow: scroll; */
+}
+
+.text
+{
+  text-align: justify;
+}
+
+.chartOne
+{
+  /* border: 1px solid black; */
+  position: absolute;
+  left: 280px;
+  /* overflow: scroll; */
+}
+
+.chartTwo
+{
+  border: 1px solid black;
+  position: absolute;
+  left: 550px;
+  top: 550px;
+
+}
+
+.piechartFilm
+{
+  /* border: 1px solid black; */
+  position: absolute;
+  left: 20px;
+  top: 550px;
+  /* overflow: scroll; */
+}
+
+.wrapper
+{
+  /* overflow: scroll; */
 }
 
 /* choice menu */
@@ -105,10 +150,23 @@ li.selected
   display: none;
 }
 
-.bar:hover
+#stackProfanity:hover, #stackDeaths:hover
 {
-  fill: RGB(92, 1, 32);
+  fill: grey;
+  cursor: pointer;
 }
+
+.graphTitlePie, .graphTitleStack
+{
+  font-size: 15px;
+  font-family: helvetica;
+  font-weight: bold;
+}
+
+
+
+
+
 
 /* d3 tip from http://bl.ocks.org/Caged/6476579*/
 .d3-tip {
