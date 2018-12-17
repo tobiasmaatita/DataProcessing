@@ -41,7 +41,6 @@ function main(){
 
         // D3 stuff
         var wrapper = d3.select('.wrapper');
-        // var ul = wrapper.append('ul').attr('id', 'menu')
 
         wrapper.append('div')
                .attr('class', 'text')
@@ -84,21 +83,6 @@ function main(){
 
         stackedBarchart();
 
-        // // add menu
-        // d3.select('#menu')
-        // .selectAll('li')
-        // .data(options)
-        // .enter()
-        // .append('li')
-        // .text(function(d) {return d;})
-        // .classed('selected', function(d) {
-        //   return d === xAxisLabel;
-        // })
-        // .on('click', function(d){
-        //   updateMenu(d);
-        //   updatePlot(datasetBar, filmDicts, d)
-        // });
-
       function piechart(index) {
 
         var filmsPie = Object.keys(datasetMain);
@@ -117,9 +101,9 @@ function main(){
 
         // piechart
         var pieHeight = 600,
-        pieWidth = 500,
-        r = 240,
-        colors = d3.scaleOrdinal(d3.schemePastel1);
+            pieWidth = 500,
+            r = 240,
+            colors = d3.scaleOrdinal(d3.schemePaired);
 
         d3.selectAll('.piechartFilm').remove()
         d3.selectAll('#pieTip').remove();
@@ -129,7 +113,7 @@ function main(){
           .attr('id', 'pieTip')
           .offset([-10, 0])
           .html(function(d, i) {
-            var currWord = filmWords[i]
+
             return "<span> " + '"<strong>' + currWord.word + '</strong>"' +
                    ":</span><br><span style='color:red'>" + currWord.value +
                    " times</span>";
@@ -161,8 +145,51 @@ function main(){
                       .attr('class', 'slice')
 
         arcs.append('svg:path')
-            .on('mouseover', pieTip.show)
-            .on('mouseout', pieTip.hide)
+            .on('mouseover', function(d, i) {
+              var currWord = filmWords[i];
+              var minutesWithWord = searchWord(currWord.word, neededFilm, filmWords);
+              // colorSummaryPlot(minutesWithWord)
+
+              var minutesList = Array.from(minutesWithWord);
+              var coloredBars = summary.selectAll('rect')
+                                       .filter(function(d, i) {
+                                         if (minutesList.indexOf(d) < 0) {
+                                           return d
+                                         }
+                                       })
+                                       .transition()
+                                       .duration(100)
+                                       .style('opacity', 0.3)
+
+              d3.select('#word')
+                .text(currWord.word)
+                .transition()
+                .style('opacity', 1)
+              d3.select('#count')
+                .text(function(){
+                  if (currWord.value != 1) {
+                    return currWord.value + ' times'
+                  } else {
+                    return currWord.value + ' time'
+                  }
+                })
+                .transition()
+                .style('opacity', 1)
+            })
+            .on('mouseout', function(d, i) {
+              // resetSummaryPlot()
+
+              var coloredBars = summary.selectAll('rect')
+                                       .transition()
+                                       .style('opacity', 1)
+              d3.select('#word')
+                .transition()
+                .style('opacity', 0)
+              d3.select('#count')
+                .transition()
+                .style('opacity', 0)
+
+            })
             .transition()
             .duration(500)
             .attr('fill', function(d, i) {
@@ -200,6 +227,63 @@ function main(){
 
       // end piechart function
       };
+
+
+      function searchWord(word, film, filmWords) {
+        var filmDataSearch = getDataSearch(datasetBar, film);
+        var wordsPerMinute = filmDataSearch[2];
+        var minutes = Object.keys(wordsPerMinute)
+        var minutesWithWord = [];
+
+        for (var i = 0; i < minutes.length; i++) {
+          var currMin = minutes[i],
+              len = wordsPerMinute[currMin].length;
+          for (var j = 0; j < len; j++) {
+            var search = wordsPerMinute[currMin][j];
+            if (search != 0) {
+              if (search.trim() == word) {
+                minutesWithWord.push(Number(currMin))
+              }
+            }
+          }
+        }
+        var minutesSet = new Set(minutesWithWord)
+
+        return minutesSet
+      }
+
+
+      function getDataSearch(data, film) {
+
+        var minutes = data[film].minutes_in;
+        var minutesSet = new Set(minutes)
+        var minutesArray = Array.from(minutesSet).sort(function(a,b){return a - b})
+        var allTimes = new Object();
+        var lengths = new Array();
+
+        // make Object with all timeslots
+        for (var i = 0; i < minutesArray.length; i++) {
+          allTimes[minutesArray[i]] = [];
+        }
+
+        // fill Object
+        for (var i = 0; i < minutes.length; i++) {
+          allTimes[minutes[i]].push(data[film]['word'][i])
+        }
+
+        // get lengths
+        for (var i = 0; i < Object.keys(allTimes).length; i++) {
+          lengths.push(allTimes[minutesArray[i]].length);
+        }
+
+        // get maximum values
+        var minutesMax = d3.max(minutes);
+        var maxPerMinute = d3.max(lengths);
+
+
+        // return values
+        return [minutesMax, maxPerMinute, allTimes, minutesArray];
+      }
 
 
       function stackedBarchart() {
@@ -543,6 +627,22 @@ function main(){
         var summaryBar = summary.selectAll('rect')
                                 .data(minutes)
 
+        summary.append('text')
+               .attr('class', 'infoSummary')
+               .attr('id', 'word')
+               .attr('x', margin.left)
+               .attr('y', 100)
+               .attr('font-size', '100px')
+               .attr('fill', 'darkgrey')
+
+        summary.append('text')
+               .attr('class', 'infoSummary')
+               .attr('id', 'count')
+               .attr('x', margin.left)
+               .attr('y', 120)
+               .attr('font-size', '20px')
+               .attr('fill', 'black')
+
         summaryBar.enter()
            .append('rect')
            .attr('x', function(d, i) {
@@ -573,7 +673,6 @@ function main(){
            .duration(500)
            .attr('height', 0)
            .attr('y', summaryHeight - margin.bottom);
-
 
       // end summaryBar function
       }
@@ -710,6 +809,31 @@ function main(){
       }
 
 
+      function colorSummaryPlot(minutesWithWord) {
+
+        var minutesList = Array.from(minutesWithWord);
+
+        var coloredBars = summary.selectAll('rect')
+                                 .filter(function(d, i) {
+                                   if (minutesList.indexOf(d) > -1) {
+                                     return d
+                                   }
+                                 })
+                                 .transition()
+                                 .duration(100)
+                                 .attr('fill', 'grey')
+
+
+      }
+
+
+      function resetSummaryPlot() {
+
+        var coloredBars = summary.selectAll('rect')
+                                 .attr('fill', 'teal')
+      }
+
+
       function updatePlot(dataBar, dataMain, dict, film) {
 
         var movieInfo = getData(dataBar, film);
@@ -835,28 +959,28 @@ function main(){
       }
 
 
-      function makeTip(allEvents, minutes) {
+      function makeTipSummary(countedEvents, minutes) {
 
         var tip = d3.tip()
           .attr('class', 'd3-tip')
-          .offset([-10, 0])
+          .attr('id', 'summaryTip')
           .html(function(minutes, i) {
-              if (allEvents[minutes].profanity == 1 && allEvents[minutes].deaths != 1) {
+              if (countedEvents[minutes].profanity == 1 && countedEvents[minutes].deaths != 1) {
                 return "<strong>" + minutes + " - " + (minutes + 2) + " minutes</strong> <br><span>" +
-                       allEvents[minutes].profanity + " curseword" +
-                       "</span><br><span style='color:red'>" + allEvents[minutes].deaths + " deaths</span>";
-              } else if (allEvents[minutes].deaths == 1 && allEvents[minutes].profanity != 1){
+                       countedEvents[minutes].profanity + " curseword" +
+                       "</span><br><span style='color:red'>" + countedEvents[minutes].deaths + " deaths</span>";
+              } else if (countedEvents[minutes].deaths == 1 && countedEvents[minutes].profanity != 1){
                 return "<strong>" + minutes + " - " + (minutes + 2) + " minutes</strong> <br><span>" +
-                       allEvents[minutes].profanity + " cursewords" +
-                       "</span><br><span style='color:red'>" + allEvents[minutes].deaths + " death</span>";
-              } else if (allEvents[minutes].profanity == 1 && allEvents[minutes].deaths == 1) {
+                       countedEvents[minutes].profanity + " cursewords" +
+                       "</span><br><span style='color:red'>" + countedEvents[minutes].deaths + " death</span>";
+              } else if (countedEvents[minutes].profanity == 1 && countedEvents[minutes].deaths == 1) {
                 return "<strong>" + minutes + " - " + (minutes + 2) + " minutes</strong> <br><span>" +
-                       allEvents[minutes].profanity + " curseword" +
-                       "</span><br><span style='color:red'>" + allEvents[minutes].deaths + " death</span>";
+                       countedEvents[minutes].profanity + " curseword" +
+                       "</span><br><span style='color:red'>" + countedEvents[minutes].deaths + " death</span>";
               } else {
                 return "<strong>" + minutes + " - " + (minutes + 2) + " minutes</strong> <br><span>" +
-                       allEvents[minutes].profanity + " cursewords" +
-                       "</span><br><span style='color:red'>" + allEvents[minutes].deaths + " deaths</span>";
+                       countedEvents[minutes].profanity + " cursewords" +
+                       "</span><br><span style='color:red'>" + countedEvents[minutes].deaths + " deaths</span>";
               };
           });
 

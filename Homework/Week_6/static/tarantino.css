@@ -95,7 +95,7 @@ div.container-fluid
 
 .chartTwo
 {
-  border: 1px solid black;
+  /* border: 1px solid black; */
   position: absolute;
   left: 550px;
   top: 550px;
@@ -163,7 +163,10 @@ li.selected
   font-weight: bold;
 }
 
-
+.infoSummary
+{
+  stroke: none;
+}
 
 
 
