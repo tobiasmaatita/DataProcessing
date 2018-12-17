@@ -7,8 +7,8 @@ function main(){
   d3.json('data/tarantinoPie.json').then(function(datasetMain){
     d3.json('data/tarantino.json').then(function(datasetBar){
 
-        var stackHeight = 500;
-        var stackWidth = 900;
+        var stackHeight = 500,
+            stackWidth = 900;
 
         var summaryHeight = 480,
             summaryWidth = 700;
@@ -43,6 +43,16 @@ function main(){
         var wrapper = d3.select('.wrapper');
 
         wrapper.append('div')
+               .attr('class', 'pageTitle')
+               .text('Every curseword and death in Quentin Tarantino' + "'" + 's \
+                      most famous films')
+
+        wrapper.append('div')
+               .attr('class', 'studentInfo')
+               .text('Tobias Maätita (10730109), DataProcessing Fall 2018, Linked \
+                      Views Assignment')
+
+        wrapper.append('div')
                .attr('class', 'text')
                .attr('id', 'introText')
                .text('In this linked views assignment, I will analyse the first \
@@ -64,6 +74,10 @@ function main(){
                .attr('class', 'chartTwo')
                .attr('id', 'summaryBar')
 
+        wrapper.append('div')
+               .attr('class', 'text')
+               .attr('id', 'summaryText')
+
         var stacked = d3.select('.chartOne')
                         .append('svg')
                         .attr('class', 'barplot')
@@ -83,14 +97,15 @@ function main(){
 
         stackedBarchart();
 
+
       function piechart(index) {
 
-        var filmsPie = Object.keys(datasetMain);
-        var neededFilm = filmsPie[index];
-        var words = datasetMain[neededFilm].words;
-        var allWords = Object.keys(words);
-        var len = allWords.length;
-        var filmWords = [];
+        var filmsPie = Object.keys(datasetMain),
+            neededFilm = filmsPie[index],
+            words = datasetMain[neededFilm].words,
+            allWords = Object.keys(words),
+            len = allWords.length,
+            filmWords = [];
 
         for (var i = 0; i < len; i++) {
           var currWord = allWords[i];
@@ -113,7 +128,6 @@ function main(){
           .attr('id', 'pieTip')
           .offset([-10, 0])
           .html(function(d, i) {
-
             return "<span> " + '"<strong>' + currWord.word + '</strong>"' +
                    ":</span><br><span style='color:red'>" + currWord.value +
                    " times</span>";
@@ -148,18 +162,17 @@ function main(){
             .on('mouseover', function(d, i) {
               var currWord = filmWords[i];
               var minutesWithWord = searchWord(currWord.word, neededFilm, filmWords);
-              // colorSummaryPlot(minutesWithWord)
-
               var minutesList = Array.from(minutesWithWord);
-              var coloredBars = summary.selectAll('rect')
-                                       .filter(function(d, i) {
-                                         if (minutesList.indexOf(d) < 0) {
-                                           return d
-                                         }
-                                       })
-                                       .transition()
-                                       .duration(100)
-                                       .style('opacity', 0.3)
+
+              summary.selectAll('rect')
+                     .filter(function(d, i) {
+                       if (minutesList.indexOf(d) < 0) {
+                         return d
+                       }
+                     })
+                     .transition()
+                     .duration(100)
+                     .style('opacity', 0.3)
 
               d3.select('#word')
                 .text(currWord.word)
@@ -177,53 +190,26 @@ function main(){
                 .style('opacity', 1)
             })
             .on('mouseout', function(d, i) {
-              // resetSummaryPlot()
-
-              var coloredBars = summary.selectAll('rect')
-                                       .transition()
-                                       .style('opacity', 1)
+              summary.selectAll('rect')
+                     .transition()
+                     .style('opacity', 1);
               d3.select('#word')
                 .transition()
-                .style('opacity', 0)
+                .style('opacity', 0);
               d3.select('#count')
                 .transition()
-                .style('opacity', 0)
-
+                .style('opacity', 0);
             })
-            .transition()
-            .duration(500)
             .attr('fill', function(d, i) {
               return colors(i)
             })
             .attr('d', arc)
-
-        // arcs.exit()
-        //     .transition()
-        //     .duration(500)
-        //     .attr('fill', function(d, i) {
-        //       return colors(i)
-        //     })
-        //     .attr('d', arc)
 
         arcs.append('text')
             .attr('text-anchor', 'middle')
             .attr('class', 'graphTitlePie')
             .text('Cursewords in ' + neededFilm)
             .attr('y', - r - margin.axisText)
-
-
-        // arcs.append('svg:text')
-        //     .attr('transform', function(d) {
-        //       d.innerRadius = 0;
-        //       d.outerRadius = r;
-        //       return "translate (" + arc.centeroid(d) + ")";
-        //     })
-        //     .attr('text-anchor', 'middle')
-        //     .text(function(d) {
-        //       return d.word
-        //     })
-
-
 
       // end piechart function
       };
@@ -355,6 +341,7 @@ function main(){
            .on('click', function(d, i) {
              piechart(i);
              summaryPlot(filmStack[i]);
+             summaryText(filmStack[i])
            })
            .on('mouseover', stackTip.show)
            .on('mouseout', stackTip.hide)
@@ -385,6 +372,7 @@ function main(){
            .on('click', function(d, i) {
              piechart(i);
              summaryPlot(filmStack[i]);
+             summaryText(filmStack[i]);
            })
            .on('mouseover', stackTip.show)
            .on('mouseout', stackTip.hide)
@@ -405,58 +393,6 @@ function main(){
            .attr('height', function(d, i) {
              return yScaleStack(deaths[i]) - margin.top;
            });
-
-
-
-            // function barPlot(data, dict, film) {
-            // // make a bar plot
-            //
-            //   // data max, min etc
-            //   var movieInfo = getData(data, film);
-            //   var minutesMax = movieInfo[0];
-            //   var maxPerMinute = movieInfo[1];
-            //   var filmData = dict[film].events;
-            //   var minutes = dict[film].minutes;
-            //   var allEvents = countEvents(dict, minutes, film)
-            //
-            //   // scales
-            //   var barWidth = 8;
-            //   var barPadding = 4;
-            //
-            //   var scales = getScales(minutesMax, maxPerMinute, barWidth);
-            //   var yScale = scales[0];
-            //   var xScale = scales[1];
-            //   var xTickScale = scales[2];
-            //
-            //   updateAxes(xScale, yScale, xTickScale, film)
-            //
-            //   // plot
-            //   var bar = barplot.selectAll('rect')
-            //                    .data(minutes);
-            //
-            //   var tip = makeTip(allEvents, film, minutes)
-            //   barplot.call(tip)
-            //
-            //   // add bars
-            //   bar.enter()
-            //      .append('rect')
-            //      .attr('class', 'bar')
-            //      .attr('x', function(d, i) {
-            //        return xScale(d);
-            //      })
-            //      .attr('y', function(d, i){
-            //        return yScale(filmData[d].length);
-            //      })
-            //      .attr('width', barWidth)
-            //      .attr('height', function(d) {
-            //        return svgHeight - yScale(filmData[d].length) - xAxisBuffer
-            //      })
-            //      .style('z-index', 10)
-            //      .on('mouseover', tip.show)
-            //      .on('mouseout', tip.hide);
-            //
-            //   return true;
-            // };
 
       return true;
       // end barchart function
@@ -559,7 +495,7 @@ function main(){
 
         stacked.selectAll('.graphTitle')
            .transition()
-           .text('All films')
+           .text('Share of deaths and profanity per film')
 
       }
 
@@ -809,124 +745,36 @@ function main(){
       }
 
 
-      function colorSummaryPlot(minutesWithWord) {
+      function summaryText(film) {
 
-        var minutesList = Array.from(minutesWithWord);
-
-        var coloredBars = summary.selectAll('rect')
-                                 .filter(function(d, i) {
-                                   if (minutesList.indexOf(d) > -1) {
-                                     return d
-                                   }
-                                 })
-                                 .transition()
-                                 .duration(100)
-                                 .attr('fill', 'grey')
-
-
-      }
-
-
-      function resetSummaryPlot() {
-
-        var coloredBars = summary.selectAll('rect')
-                                 .attr('fill', 'teal')
-      }
-
-
-      function updatePlot(dataBar, dataMain, dict, film) {
-
-        var movieInfo = getData(dataBar, film);
-        var minutesMax = movieInfo[0];
-        var maxPerMinute = movieInfo[1];
-        var filmData = dict[film].events;
-        var minutes = dict[film].minutes;
-        var allEvents = countEvents(dict, minutes, film)
-
-        var totalDeath = dataMain[film].deaths;
-        var totalProfanity = dataMain[film].profanity;
-
-        // scales
-        var barWidth = 8;
-        var barPadding = 4;
-
-        var scales = getScales(minutesMax, maxPerMinute, barWidth);
-        var yScale = scales[0];
-        var xScale = scales[1];
-        var xTickScale = scales[2];
-
-        updateAxes(xScale, yScale, xTickScale, film)
-
-        var updateBar = barplot.selectAll('rect')
-                               .data(minutes);
-
-        // var tip = d3.tip(film)
-        //   .attr('class', 'd3-tip')
-        //   .offset([-10, 0])
-        //   .html(function(minutes, i) {
-        //     console.log(film);
-        //       if (allEvents[film][minutes].profanity == 1 && allEvents[film][minutes].deaths != 1) {
-        //         return "<strong>" + minutes + " - " + (minutes + 2) + " minutes</strong> <br><span>" +
-        //                allEvents[film][minutes].profanity + " curseword" +
-        //                "</span><br><span style='color:red'>" + allEvents[film][minutes].deaths + " deaths</span>";
-        //       } else if (allEvents[film][minutes].deaths == 1 && allEvents[film][minutes].profanity != 1){
-        //         return "<strong>" + minutes + " - " + (minutes + 2) + " minutes</strong> <br><span>" +
-        //                allEvents[film][minutes].profanity + " curseword" +
-        //                "</span><br><span style='color:red'>" + allEvents[film][minutes].deaths + " death</span>";
-        //       } else if (allEvents[film][minutes].profanity == 1 && allEvents[film][minutes].deaths == 1) {
-        //         return "<strong>" + minutes + " - " + (minutes + 2) + " minutes</strong> <br><span>" +
-        //                allEvents[film][minutes].profanity + " curseword" +
-        //                "</span><br><span style='color:red'>" + allEvents[film][minutes].deaths + " death</span>";
-        //       } else {
-        //         return "<strong>" + minutes + " - " + (minutes + 2) + " minutes</strong> <br><span>" +
-        //                allEvents[film][minutes].profanity + " cursewords" +
-        //                "</span><br><span style='color:red'>" + allEvents[film][minutes].deaths + " deaths</span>";
-        //       };
-        //   });
-        var tip = barplot.selectAll('.d3-tip')
-        tip.remove();
-
-        var tip = makeTip(allEvents[film], minutes);
-        barplot.call(tip);
-
-        updateBar.enter()
-           .append('rect')
-           .on('mouseover', tip.show)
-           .on('mouseout', tip.hide)
-           .merge(updateBar)
-           .transition(d3.easeQuad)
-           .duration(500)
-           .attr('class', 'bar')
-           .attr('x', function(d) {
-             return xScale(d);
-           })
-           .attr('y', function(d){
-             return yScale(filmData[d].length);
-           })
-           .attr('width', barWidth)
-           .attr('height', function(d) {
-             return svgHeight - yScale(filmData[d].length) - xAxisBuffer
-           })
-           .style('z-index', 10)
-
-        updateBar.exit()
-           .transition()
-           .duration(500)
-           .attr('height', 0)
-           .attr('y', svgHeight - xAxisBuffer);
-
-        return true;
-      }
-
-
-      function updateMenu(film) {
-      // set chosen film to bold font
-      d3.select('#menu')
-        .selectAll('li')
-        .classed('selected', function(d) {
-          return d === film;
-        })
-
+        var specifics = {'Pulp Fiction': ' has several high peaks. Around the sixty \
+                          minute mark, Vega tries to save Mia Wallace. Around the \
+                          120 minute mark, Vega accidentally shoots Marvin.',
+                         'Django Unchained': ' lived up to the expectation of it \
+                          being an extremely shocking film per the extensive use of \
+                          the n-word; it is said at least once almost every five minutes. \
+                          The shootout at Candyland can be seen in the large spike around \
+                          the 140 minutes mark.',
+                         'Jackie Brown': ' is quite an eventful film, yet most of \
+                          the events are instances of profanity.',
+                         'Inglorious Basterds': ' has very few events compared to \
+                          the other films. The final big spike occurs when Hitler is \
+                          killed.',
+                         'Kill Bill: Vol. 1': ' shows one very large peak. This peak, \
+                          around the 80 minute mark, occurs when The Bride fights \
+                          the Crazy 88.',
+                         'Kill Bill: Vol. 2': ' is relatively tranquil compared to \
+                          Volume 1. The final spike occurs when Bill is eventually \
+                          killed.',
+                         'Reservoir Dogs': ' is a fairly eventful film. Most of \
+                          the profanity stems from arguments about what to do next.'};
+        // d3.selectAll('#summaryText').remove()
+        d3.selectAll('#summaryText')
+          .text('Below, you can see the different kinds of cursewords in ' + film
+          +' illustrated in the piechart. The barchart next to the piechart shows \
+          the number of events per two minutes in the film - also including deaths. \
+          Hover over the piechart to find out when a specific word is being said. \
+          As you can see, ' + film + specifics[film])
       }
 
 
@@ -958,39 +806,8 @@ function main(){
         return countedEvents;
       }
 
-
-      function makeTipSummary(countedEvents, minutes) {
-
-        var tip = d3.tip()
-          .attr('class', 'd3-tip')
-          .attr('id', 'summaryTip')
-          .html(function(minutes, i) {
-              if (countedEvents[minutes].profanity == 1 && countedEvents[minutes].deaths != 1) {
-                return "<strong>" + minutes + " - " + (minutes + 2) + " minutes</strong> <br><span>" +
-                       countedEvents[minutes].profanity + " curseword" +
-                       "</span><br><span style='color:red'>" + countedEvents[minutes].deaths + " deaths</span>";
-              } else if (countedEvents[minutes].deaths == 1 && countedEvents[minutes].profanity != 1){
-                return "<strong>" + minutes + " - " + (minutes + 2) + " minutes</strong> <br><span>" +
-                       countedEvents[minutes].profanity + " cursewords" +
-                       "</span><br><span style='color:red'>" + countedEvents[minutes].deaths + " death</span>";
-              } else if (countedEvents[minutes].profanity == 1 && countedEvents[minutes].deaths == 1) {
-                return "<strong>" + minutes + " - " + (minutes + 2) + " minutes</strong> <br><span>" +
-                       countedEvents[minutes].profanity + " curseword" +
-                       "</span><br><span style='color:red'>" + countedEvents[minutes].deaths + " death</span>";
-              } else {
-                return "<strong>" + minutes + " - " + (minutes + 2) + " minutes</strong> <br><span>" +
-                       countedEvents[minutes].profanity + " cursewords" +
-                       "</span><br><span style='color:red'>" + countedEvents[minutes].deaths + " deaths</span>";
-              };
-          });
-
-        return tip;
-      }
-
-
-    // end bar promise from main function
     })
-  // end promise pie from main
+  // end pie promise from main
   });
 // end main
 }

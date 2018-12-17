@@ -44,70 +44,86 @@ p
 div.container-fluid
 {
   padding-top: 20px;
+  position: relative;
   overflow: scroll;
   height: 100%;
 }
 
 
 /* layout */
-#menu
+.pageTitle
 {
-  border: 1px solid black;
   position: absolute;
-  text-align: left;
-  /* top: 160px;
-  left: 1200px;
-  width: 100px; */
-  cursor: pointer;
-  overflow: hidden;
+  text-align: justify;
+  padding-left: 25%;
+  padding-right: 25%;
+  font-size: 30px;
+  font-family: helvetica;
+  font-weight: bold;
 }
 
-/* #barchart
+.studentInfo
 {
-  border: 1px solid black;
-  overflow: hidden;
-  width: 1300;
+  font-size: 16px;
+  font-family: helvetica;
+  font-weight: lighter;
+  font-style: italic;
+  text-align: justify;
   position: absolute;
-  left: 180px;
-} */
+  padding-left: 25%;
+  padding-right: 25%;
+  top: 118px;
+}
 
 #introText
 {
-  /* border: 1px solid black; */
   position: absolute;
-  left: 20px;
-  width: 250px;
+  top: 150px;
+  padding-left: 25%;
+  padding-right: 25%;
   /* overflow: scroll; */
 }
 
 .text
 {
   text-align: justify;
+  font-family: helvetica;
+  font-size: 18px;
 }
 
 .chartOne
 {
-  /* border: 1px solid black; */
+  display: block;
   position: absolute;
   left: 280px;
+  top: 270px;
   /* overflow: scroll; */
+}
+
+#summaryText
+{
+  position: absolute;
+  padding-left: 25%;
+  padding-right: 25%;
+  top: 770px;
 }
 
 .chartTwo
 {
-  /* border: 1px solid black; */
   position: absolute;
-  left: 550px;
-  top: 550px;
-
+  display: block;
+  left: 620px;
+  top: 900px;
+  margin-top: 60px;
 }
 
 .piechartFilm
 {
-  /* border: 1px solid black; */
   position: absolute;
-  left: 20px;
-  top: 550px;
+  display: block;
+  left: 90px;
+  top: 900px;
+  margin-top: 30px;
   /* overflow: scroll; */
 }
 
@@ -115,27 +131,6 @@ div.container-fluid
 {
   /* overflow: scroll; */
 }
-
-/* choice menu */
-ul
-{
-  list-style: none;
-  font-family: helvetica;
-  font-size: 15px;
-  padding: 0;
-  margin-top: 0px;
-}
-
-li:hover
-{
-  font-size: 20px;
-}
-
-li.selected
-{
-  font-weight: bold;
-}
-
 
 /* charts */
 .xAxis, .yAxis
