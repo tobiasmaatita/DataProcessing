@@ -113,7 +113,7 @@ div.container-fluid
   position: absolute;
   display: block;
   left: 620px;
-  top: 900px;
+  top: 920px;
   margin-top: 60px;
 }
 
@@ -122,7 +122,7 @@ div.container-fluid
   position: absolute;
   display: block;
   left: 90px;
-  top: 900px;
+  top: 920px;
   margin-top: 30px;
   /* overflow: scroll; */
 }
